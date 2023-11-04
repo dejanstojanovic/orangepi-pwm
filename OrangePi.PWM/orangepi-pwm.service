@@ -1,0 +1,12 @@
+[Unit]
+Description=Run PWM control
+
+[Service]
+ExecStart=dotnet run --project /etc/orangepi-pwm/OrangePi.PWM --property:Configuration=Release
+User=0
+Group=0
+Type=simple
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
