@@ -67,7 +67,7 @@ namespace OrangePi.PWM.Service
                     }
                 }
 
-                Task.Delay(TimeSpan.FromSeconds(1)).Wait();
+                Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.IntervalSeconds)).Wait();
             }
         }
     }
