@@ -2,7 +2,8 @@
 Description=Run PWM control
 
 [Service]
-ExecStart=%h/.dotnet/dotnet /etc/orangepi-pwm/OrangePi.PWM.Service/OrangePi.PWM.Service.dll
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-pwm/OrangePi.PWM.Service.dll
+WorkingDirectory=/etc/orangepi-pwm
 User=root
 Group=0
 Type=simple
