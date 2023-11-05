@@ -2,7 +2,7 @@
 Description=Run PWM control
 
 [Service]
-ExecStart=%h/.dotnet/dotnet run --project /etc/orangepi-pwm/OrangePi.PWM.Service.csproj --property:Configuration=Release
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-pwm/OrangePi.PWM.Service.dll
 User=root
 Group=0
 Type=simple
