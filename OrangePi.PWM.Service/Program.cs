@@ -1,15 +1,12 @@
 using OrangePi.PWM.Service;
 using OrangePi.PWM.Service.Models;
-using System.Runtime;
-using Microsoft.Extensions.Options;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((hostContext, config) =>
     {
         config
             .SetBasePath(Environment.CurrentDirectory)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
         config.AddEnvironmentVariables();
     })
@@ -18,6 +15,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddOptions();
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
         services.AddHostedService<Worker>();
+    })
+    .ConfigureLogging(logging =>
+    {
+        logging.ClearProviders();
+        logging.AddConsole();
     })
     .Build();
 
