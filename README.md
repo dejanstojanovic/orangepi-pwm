@@ -62,3 +62,50 @@ While service is runnig you can check recent logs and service status
 ```
 systemctl status orangepi-pwm.service
 ```
+### Configuring temperature thresholds
+Predefined temperature thresholds and PWM values for each threshold are configured in ```appsettings.json``` file.
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "ServiceConfiguration": {
+    "wPi": 2,
+    "IntervalSeconds": 1,
+    "TemperatureConfigurations": [
+      {
+        "Temperature": 0,
+        "Value": 0
+      },
+      {
+        "Temperature": 30,
+        "Value": 100
+      },
+      {
+        "Temperature": 40,
+        "Value": 300
+      },
+      {
+        "Temperature": 50,
+        "Value": 400
+      },
+      {
+        "Temperature": 60,
+        "Value": 500
+      },
+      {
+        "Temperature": 70,
+        "Value": 800
+      },
+      {
+        "Temperature": 80,
+        "Value": 1000
+      }
+    ]
+  }
+}
+```
+If you want to update thresholds or PWM values you just need to update values in ```appsettings.json``` file without need to restart the service. New values will be picked up automatically once you save the file.
