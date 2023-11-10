@@ -48,3 +48,15 @@ Restart=no
 [Install]
 WantedBy=multi-user.target
 ```
+
+To setup and start the service run the following commands
+```
+systemctl daemon-reload
+systemctl enable orangepi-pwm.service
+systemctl start orangepi-pwm.service
+```
+
+While service is runnig you can check recent logs and service status 
+```
+systemctl status orangepi-pwm.service
+```
