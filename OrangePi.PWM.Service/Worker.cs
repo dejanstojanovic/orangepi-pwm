@@ -33,7 +33,11 @@ namespace OrangePi.PWM.Service
                     if (temperature > 0)
                         temperature = temperature / 1000;
 
-                    var value = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Value;
+                    var value = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations
+                                    .OrderBy(r => r.Temperature)
+                                    .Where(r => temperature >= r.Temperature)
+                                    .FirstOrDefault()?.Value;
+
                     value = value ?? 0;
 
                     if (previousValue != value)

@@ -16,7 +16,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddOptions();
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
         services.AddHostedService<Worker>();
-        services.AddScoped<IProcessRunner, ProcessRunner>();
+        services.AddSingleton<IProcessRunner, ProcessRunner>();
     })
     .ConfigureLogging(logging =>
     {
