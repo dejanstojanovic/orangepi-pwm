@@ -39,7 +39,7 @@ namespace OrangePi.PWM.Service
                     if (previousValue != value)
                     {
                         previousValue = value.Value;
-                        _logger.LogInformation($"Updating PWM Temperature: {temperature}; Speed: {value}");
+                        _logger.LogInformation($"Updating PWM Temperature: {temperature}; Value: {value}");
 
                         await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), value.ToString());
                     }
