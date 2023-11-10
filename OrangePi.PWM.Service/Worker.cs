@@ -4,6 +4,18 @@ using OrangePi.PWM.Service.Services;
 
 namespace OrangePi.PWM.Service
 {
+    class ThresholdRange
+    {
+        public ThresholdRange(double start, double end, double value)
+        {
+            this.Start = start;
+            this.End = end;
+            this.Value = value;
+        }
+        public double Start { get; init; }
+        public double End { get; init; }
+        public double Value { get; init; }
+    }
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
@@ -21,8 +33,44 @@ namespace OrangePi.PWM.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            int previousValue = 0;
+            double previousValue = 0;
             await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm");
+
+            var thresholds = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(t => t.Temperature).ToList();
+            var ranges = new List<ThresholdRange>();
+
+            Console.WriteLine("----- TEMPERATURE CONFIGURATION -----");
+
+            foreach (var threshold in thresholds)
+            {
+                if (thresholds.FindIndex(p => p == threshold) == 0)
+                    ranges.Add(new ThresholdRange(
+                        start: int.MinValue,
+                        end: threshold.Temperature,
+                        value: 0));
+                else if (thresholds.FindIndex(p => p == threshold) == thresholds.Count() - 1)
+                {
+                    ranges.Add(new ThresholdRange(
+                        start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
+                        end: threshold.Temperature,
+                        value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
+
+                    ranges.Add(new ThresholdRange(
+                        start: threshold.Temperature,
+                        end: int.MaxValue,
+                        value: 1000));
+                }
+                else
+                    ranges.Add(new ThresholdRange(
+                        start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
+                        end: threshold.Temperature,
+                        value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
+
+                Console.WriteLine($"[{ranges.Last().Start} - {ranges.Last().End}] => {ranges.Last().Value}");
+            }
+
+            Console.WriteLine("-------------------------------------");
+
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -33,10 +81,7 @@ namespace OrangePi.PWM.Service
                     if (temperature > 0)
                         temperature = temperature / 1000;
 
-                    var value = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations
-                                    .OrderBy(r => r.Temperature)
-                                    .Where(r => temperature >= r.Temperature)
-                                    .FirstOrDefault()?.Value;
+                    var value = ranges.SingleOrDefault(r => temperature >= r.Start && temperature <= r.End)?.Value;
 
                     value = value ?? 0;
 
