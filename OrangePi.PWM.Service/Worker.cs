@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Options;
 using OrangePi.PWM.Service.Models;
 using OrangePi.PWM.Service.Services;
-using System;
-using System.Diagnostics;
 
 namespace OrangePi.PWM.Service
 {
@@ -26,7 +24,6 @@ namespace OrangePi.PWM.Service
             int previousSpeed = 0;
             await _processRunner.Run("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm"));
 
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 var temeratureCheckOutput = await _processRunner.Run("cat", "/sys/class/thermal/thermal_zone0/temp");
@@ -47,7 +44,6 @@ namespace OrangePi.PWM.Service
                         await _processRunner.Run("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), speed.ToString());
                     }
                 }
-
 
                 Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.IntervalSeconds)).Wait();
             }
