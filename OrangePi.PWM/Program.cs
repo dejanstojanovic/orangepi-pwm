@@ -10,7 +10,7 @@ namespace OrangePi.PWM
         static async Task Main(string[] args)
         {
             const int WPI = 2;
-            (int Temperature, int Speed)[] ranges = new[] {
+            (int Temperature, int Value)[] ranges = new[] {
                 (0, 0), (35, 100), (40, 300), (50, 400), (60, 500), (70, 800), (80, 1000)
             };
 
@@ -48,8 +48,7 @@ namespace OrangePi.PWM
                         if (temperature > 0)
                             temperature = temperature / 1000;
 
-                        var speed = ranges.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Speed;
-                        speed = speed ?? 0;
+                        var speed = ranges.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault().Value;
 
                         if (previousSpeed != speed)
                         {

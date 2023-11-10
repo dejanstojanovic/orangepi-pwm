@@ -22,7 +22,7 @@ namespace OrangePi.PWM.Service
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             int previousSpeed = 0;
-            await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm"));
+            await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm");
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -33,7 +33,7 @@ namespace OrangePi.PWM.Service
                     if (temperature > 0)
                         temperature = temperature / 1000;
 
-                    var speed = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Speed;
+                    var speed = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Value;
                     speed = speed ?? 0;
 
                     if (previousSpeed != speed)
