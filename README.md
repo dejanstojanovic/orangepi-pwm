@@ -9,6 +9,9 @@ The solution is tested and currently running on OrangePi5 but you should not hav
 For start you need to use any PWM enabled fan. In my case I am using [Noctua NF-A4x10 5V PWM](https://noctua.at/en/nf-a4x10-5v-pwm) but you should be good with pretty much any fan that supports PWM.
 Connect fan to Orange Pi 5 GND and 5V pins GPIO pins. PWM should be connected to GPIO7 which you will use to control the value.
 
+### How does it work?
+Once the configured temperature threshold is reached, process will set PWM value associated with that threshold. Temperature value is checked on configurable period which is 1 second by default but can be changed.
+
 ## OrangePi.PWM
 This is simple console application that you can use with simple ```dotnet run OrangePi.PWM/OrangePi.PWM.csproj```. Alternatively you can also publish it and run it's binary, but every code change will require you to rebuild it
 
