@@ -1,3 +1,5 @@
+![Connection diagram](https://raw.githubusercontent.com/dejanstojanovic/orangepi-pwm/main/Diagram/diagram.png)
+
 # OrangePi PWM fan control
 The purpose of this project is to manage to control fan speed based on the temperature of the SOC for **Orange Pi** SBC. 
 
