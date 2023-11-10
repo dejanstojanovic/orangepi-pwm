@@ -49,14 +49,21 @@ namespace OrangePi.PWM.Service
                     string temeratureCheckOutput = temeratureCheck.StandardOutput.ReadToEnd();
                     await temeratureCheck.WaitForExitAsync();
 
-                    if (int.TryParse(temeratureCheckOutput, out int temperature))
-                    {
-                        var speed = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature <= temperature).Last().Speed;
-                        if (previousSpeed != speed)
-                        {
-                            previousSpeed = speed;
 
-                            _logger.LogInformation($"Updating PWM Temperature: {temperature}; Speed: {speed}");
+                    if (double.TryParse(temeratureCheckOutput, out double temperature))
+                {
+                    if (temperature > 0)
+                        temperature = temperature / 1000;
+
+                    var speed = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Speed;
+                    speed = speed ?? 0;
+
+
+                    if (previousSpeed != speed)
+                    {
+                        previousSpeed = speed.Value;
+
+                        _logger.LogInformation($"Updating PWM Temperature: {temperature}; Speed: {speed}");
 
                             using (var pwmSet = getProcess("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), speed.ToString()))
                             {
@@ -64,7 +71,7 @@ namespace OrangePi.PWM.Service
                                 await pwmSet.WaitForExitAsync();
                             }
                         }
-                    }
+                }
                 }
 
                 Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.IntervalSeconds)).Wait();
