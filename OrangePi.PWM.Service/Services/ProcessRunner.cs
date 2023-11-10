@@ -4,7 +4,7 @@ namespace OrangePi.PWM.Service.Services
 {
     public class ProcessRunner : IProcessRunner
     {
-        public async Task<string> Run(string command, params string[] args)
+        public async Task<string> RunAsync(string command, params string[] args)
         {
             using (Process process = new Process())
             {

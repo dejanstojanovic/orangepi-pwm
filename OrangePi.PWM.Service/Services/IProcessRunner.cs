@@ -8,6 +8,6 @@ namespace OrangePi.PWM.Service.Services
 {
     public interface IProcessRunner
     {
-        Task<string> Run(string command, params string[] args);
+        Task<string> RunAsync(string command, params string[] args);
     }
 }
