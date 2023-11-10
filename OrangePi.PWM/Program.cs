@@ -11,7 +11,7 @@ namespace OrangePi.PWM
         {
             const int WPI = 2;
             (int Temperature, int Speed)[] ranges = new[] {
-                (35, 100), (40, 300), (50, 400), (60, 500), (70, 800), (80, 1000)
+                (0, 0), (35, 100), (40, 300), (50, 400), (60, 500), (70, 800), (80, 1000)
             };
 
             Process getProcess(string command, params string[] args)
@@ -48,7 +48,9 @@ namespace OrangePi.PWM
                         if (temperature > 0)
                             temperature = temperature / 1000;
 
-                        var speed = ranges.OrderBy(r => r.Temperature).Where(r => r.Temperature <= temperature).Last().Speed;
+                        var speed = ranges.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Speed;
+                        speed = speed ?? 0;
+
                         if (previousSpeed != speed)
                         {
                             previousSpeed = speed;
