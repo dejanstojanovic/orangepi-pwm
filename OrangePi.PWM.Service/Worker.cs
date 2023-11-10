@@ -49,8 +49,11 @@ namespace OrangePi.PWM.Service
                     string temeratureCheckOutput = temeratureCheck.StandardOutput.ReadToEnd();
                     await temeratureCheck.WaitForExitAsync();
 
-                    if (int.TryParse(temeratureCheckOutput, out int temperature))
+                    if (double.TryParse(temeratureCheckOutput, out double temperature))
                     {
+                        if (temperature > 0)
+                            temperature = temperature / 1000;
+
                         var speed = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature <= temperature).Last().Speed;
                         if (previousSpeed != speed)
                         {

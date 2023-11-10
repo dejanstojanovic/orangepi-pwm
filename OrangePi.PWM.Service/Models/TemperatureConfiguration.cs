@@ -11,7 +11,7 @@ namespace OrangePi.PWM.Service.Models
         /// <summary>
         /// Temperature threshold for which speed is applied
         /// </summary>
-        public int Temperature { get; set; }
+        public double Temperature { get; set; }
 
         /// <summary>
         /// PWM speed value to be set for Temperature threshold
