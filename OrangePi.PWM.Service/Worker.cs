@@ -44,9 +44,17 @@ namespace OrangePi.PWM.Service
                         await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), value.ToString());
                     }
                 }
+                else
+                {
+                    //Failed to read temperature, spin up fan to max
+                    await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), 1000.ToString());
+                }
 
                 Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.IntervalSeconds)).Wait();
             }
+
+            //Program exit, spin up fan to max
+            await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), 1000.ToString());
         }
     }
 }
