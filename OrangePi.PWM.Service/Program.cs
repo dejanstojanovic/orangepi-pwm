@@ -1,5 +1,6 @@
 using OrangePi.PWM.Service;
 using OrangePi.PWM.Service.Models;
+using OrangePi.PWM.Service.Services;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((hostContext, config) =>
@@ -15,6 +16,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddOptions();
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
         services.AddHostedService<Worker>();
+        services.AddScoped<IProcessRunner, ProcessRunner>();
     })
     .ConfigureLogging(logging =>
     {

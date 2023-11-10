@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using OrangePi.PWM.Service.Models;
-using System;
-using System.Diagnostics;
+using OrangePi.PWM.Service.Services;
 
 namespace OrangePi.PWM.Service
 {
@@ -9,69 +8,41 @@ namespace OrangePi.PWM.Service
     {
         private readonly ILogger<Worker> _logger;
         private readonly IOptionsMonitor<ServiceConfiguration> _serviceConfigMonitor;
+        private readonly IProcessRunner _processRunner;
         public Worker(
             ILogger<Worker> logger,
-            IOptionsMonitor<ServiceConfiguration> serviceConfigMonitor)
+            IOptionsMonitor<ServiceConfiguration> serviceConfigMonitor,
+            IProcessRunner processRunner)
         {
             _logger = logger;
             _serviceConfigMonitor = serviceConfigMonitor;
+            _processRunner = processRunner;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Process getProcess(string command, params string[] args)
-            {
-                Process process = new Process();
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.FileName = command;
-                foreach (var arg in args)
-                {
-                    process.StartInfo.ArgumentList.Add(arg);
-                }
-                return process;
-            }
-
             int previousSpeed = 0;
-
-            using (var pwmPinSet = getProcess("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm"))
-            {
-                pwmPinSet.Start();
-                await pwmPinSet.WaitForExitAsync();
-            }
+            await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm");
 
             while (!stoppingToken.IsCancellationRequested)
             {
+                var temeratureCheckOutput = await _processRunner.RunAsync("cat", "/sys/class/thermal/thermal_zone0/temp");
 
-                using (var temeratureCheck = getProcess("cat", "/sys/class/thermal/thermal_zone0/temp"))
-                {
-                    temeratureCheck.Start();
-                    string temeratureCheckOutput = temeratureCheck.StandardOutput.ReadToEnd();
-                    await temeratureCheck.WaitForExitAsync();
-
-
-                    if (double.TryParse(temeratureCheckOutput, out double temperature))
+                if (double.TryParse(temeratureCheckOutput, out double temperature))
                 {
                     if (temperature > 0)
                         temperature = temperature / 1000;
 
-                    var speed = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Speed;
+                    var speed = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault()?.Value;
                     speed = speed ?? 0;
-
 
                     if (previousSpeed != speed)
                     {
                         previousSpeed = speed.Value;
-
                         _logger.LogInformation($"Updating PWM Temperature: {temperature}; Speed: {speed}");
 
-                            using (var pwmSet = getProcess("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), speed.ToString()))
-                            {
-                                pwmSet.Start();
-                                await pwmSet.WaitForExitAsync();
-                            }
-                        }
-                }
+                        await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), speed.ToString());
+                    }
                 }
 
                 Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.IntervalSeconds)).Wait();
