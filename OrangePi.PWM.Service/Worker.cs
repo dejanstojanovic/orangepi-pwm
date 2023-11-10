@@ -24,7 +24,6 @@ namespace OrangePi.PWM.Service
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             int previousSpeed = 0;
-
             await _processRunner.Run("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm"));
 
 
