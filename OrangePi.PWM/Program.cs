@@ -1,72 +1,111 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace OrangePi.PWM
 {
+    class ThresholdRange
+    {
+        public ThresholdRange(double start, double end, double value)
+        {
+            this.Start = start;
+            this.End = end;
+            this.Value = value;
+        }
+        public double Start { get; init; }
+        public double End { get; init; }
+        public double Value { get; init; }
+    }
+
     public class Program
     {
         static async Task Main(string[] args)
         {
             const int WPI = 2;
-            (int Temperature, int Value)[] ranges = new[] {
-                (0, 0), (35, 100), (40, 300), (50, 400), (60, 500), (70, 800), (80, 1000)
+            List<(double Temperature, int Value)> thresholds = new List<(double Temperature, int Value)> {
+                (30, 100), (40, 300), (50, 400), (60, 500), (70, 800), (80, 1000)
             };
 
-            Process getProcess(string command, params string[] args)
+            async Task<string> RunProcessAsync(string command, params string[] args)
             {
-                Process process = new Process();
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.FileName = command;
-                foreach (var arg in args)
+                using (Process process = new Process())
                 {
-                    process.StartInfo.ArgumentList.Add(arg);
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.FileName = command;
+                    foreach (var arg in args)
+                    {
+                        process.StartInfo.ArgumentList.Add(arg);
+                    }
+
+                    process.Start();
+                    string output = process.StandardOutput.ReadToEnd();
+                    await process.WaitForExitAsync();
+
+                    return output;
                 }
-                return process;
             }
 
-            int previousSpeed = 0;
+            double previousValue = 0;
 
-            using (var pwmPinSet = getProcess("gpio", "mode", WPI.ToString(), "pwm"))
-            {
-                pwmPinSet.Start();
-                await pwmPinSet.WaitForExitAsync();
-            }
+            await RunProcessAsync("gpio", "mode", WPI.ToString(), "pwm");
 
             while (true)
             {
-                using (var temeratureCheck = getProcess("cat", "/sys/class/thermal/thermal_zone0/temp"))
+
+                var ranges = new List<ThresholdRange>();
+
+                foreach (var threshold in thresholds)
                 {
-                    temeratureCheck.Start();
-                    string temeratureCheckOutput = temeratureCheck.StandardOutput.ReadToEnd();
-                    await temeratureCheck.WaitForExitAsync();
-
-                    if (double.TryParse(temeratureCheckOutput, out double temperature))
+                    if (thresholds.FindIndex(p => p == threshold) == 0)
+                        ranges.Add(new ThresholdRange(
+                            start: int.MinValue,
+                            end: threshold.Temperature,
+                            value: 0));
+                    else if (thresholds.FindIndex(p => p == threshold) == thresholds.Count() - 1)
                     {
-                        if (temperature > 0)
-                            temperature = temperature / 1000;
+                        ranges.Add(new ThresholdRange(
+                            start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
+                            end: threshold.Temperature,
+                            value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
 
-                        var speed = ranges.OrderBy(r => r.Temperature).Where(r => r.Temperature >= temperature).FirstOrDefault().Value;
-
-                        if (previousSpeed != speed)
-                        {
-                            previousSpeed = speed;
-
-                            Console.WriteLine($"{temperature} => {speed}");
-
-                            using (var pwmSet = getProcess("gpio", "pwm", WPI.ToString(), speed.ToString()))
-                            {
-                                pwmSet.Start();
-                                await pwmSet.WaitForExitAsync();
-                            }
-                        }
+                        ranges.Add(new ThresholdRange(
+                            start: threshold.Temperature,
+                            end: int.MaxValue,
+                            value: 1000));
                     }
+                    else
+                        ranges.Add(new ThresholdRange(
+                            start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
+                            end: threshold.Temperature,
+                            value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
                 }
 
-                Task.Delay(TimeSpan.FromSeconds(1)).Wait();
+                var temeratureCheck = await RunProcessAsync("cat", "/sys/class/thermal/thermal_zone0/temp");
+
+                if (double.TryParse(temeratureCheck, out double temperature))
+                {
+                    if (temperature > 0)
+                        temperature = temperature / 1000;
+
+                    var value = ranges.SingleOrDefault(r => temperature >= r.Start && temperature <= r.End)?.Value;
+
+                    value = value ?? 0;
+
+                    if (previousValue != value)
+                    {
+                        previousValue = value.Value;
+
+                        Console.WriteLine($"{temperature} => {value}");
+
+                        await RunProcessAsync("gpio", "pwm", WPI.ToString(), value.ToString());
+                    }
+                }
             }
+
+            Task.Delay(TimeSpan.FromSeconds(1)).Wait();
         }
     }
 }

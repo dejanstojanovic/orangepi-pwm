@@ -4,18 +4,7 @@ using OrangePi.PWM.Service.Services;
 
 namespace OrangePi.PWM.Service
 {
-    class ThresholdRange
-    {
-        public ThresholdRange(double start, double end, double value)
-        {
-            this.Start = start;
-            this.End = end;
-            this.Value = value;
-        }
-        public double Start { get; init; }
-        public double End { get; init; }
-        public double Value { get; init; }
-    }
+
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
@@ -36,45 +25,42 @@ namespace OrangePi.PWM.Service
             double previousValue = 0;
             await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm");
 
-            var thresholds = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(t => t.Temperature).ToList();
-            var ranges = new List<ThresholdRange>();
-
-            Console.WriteLine("----- TEMPERATURE CONFIGURATION -----");
-
-            foreach (var threshold in thresholds)
-            {
-                if (thresholds.FindIndex(p => p == threshold) == 0)
-                    ranges.Add(new ThresholdRange(
-                        start: int.MinValue,
-                        end: threshold.Temperature,
-                        value: 0));
-                else if (thresholds.FindIndex(p => p == threshold) == thresholds.Count() - 1)
-                {
-                    ranges.Add(new ThresholdRange(
-                        start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
-                        end: threshold.Temperature,
-                        value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
-
-                    ranges.Add(new ThresholdRange(
-                        start: threshold.Temperature,
-                        end: int.MaxValue,
-                        value: 1000));
-                }
-                else
-                    ranges.Add(new ThresholdRange(
-                        start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
-                        end: threshold.Temperature,
-                        value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
-
-                Console.WriteLine($"[{ranges.Last().Start} - {ranges.Last().End}] => {ranges.Last().Value}");
-            }
-
-            Console.WriteLine("-------------------------------------");
 
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 var temeratureCheckOutput = await _processRunner.RunAsync("cat", "/sys/class/thermal/thermal_zone0/temp");
+
+                #region calculate ranges
+                var thresholds = _serviceConfigMonitor.CurrentValue.TemperatureConfigurations.OrderBy(t => t.Temperature).ToList();
+                var ranges = new List<ThresholdRange>();
+
+                foreach (var threshold in thresholds)
+                {
+                    if (thresholds.FindIndex(p => p == threshold) == 0)
+                        ranges.Add(new ThresholdRange(
+                            start: int.MinValue,
+                            end: threshold.Temperature,
+                            value: 0));
+                    else if (thresholds.FindIndex(p => p == threshold) == thresholds.Count() - 1)
+                    {
+                        ranges.Add(new ThresholdRange(
+                            start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
+                            end: threshold.Temperature,
+                            value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
+
+                        ranges.Add(new ThresholdRange(
+                            start: threshold.Temperature,
+                            end: int.MaxValue,
+                            value: 1000));
+                    }
+                    else
+                        ranges.Add(new ThresholdRange(
+                            start: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Temperature + 0.0001,
+                            end: threshold.Temperature,
+                            value: thresholds[thresholds.FindIndex(p => p == threshold) - 1].Value));
+                }
+                #endregion
 
                 if (double.TryParse(temeratureCheckOutput, out double temperature))
                 {
