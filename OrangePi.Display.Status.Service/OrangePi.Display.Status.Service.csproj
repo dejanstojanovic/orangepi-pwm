@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-OrangePi.Display.Status.Service-a17b8bb9-d6f6-4b9a-a1ee-a240be470b7b</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Meadow" Version="1.4.0.3" />
+    <PackageReference Include="Meadow.Foundation" Version="1.4.0.3" />
+    <PackageReference Include="Meadow.Foundation.Displays.TftSpi" Version="1.4.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+  </ItemGroup>
+</Project>
