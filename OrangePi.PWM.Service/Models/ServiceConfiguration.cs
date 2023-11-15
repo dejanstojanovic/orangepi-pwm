@@ -25,5 +25,9 @@
         /// </summary>
         public int IntervalSeconds { get; set; }
 
+        /// <summary>
+        /// Value to set to PWM when service is shutting down
+        /// </summary>
+        public int ExitValue { get; set; }
     }
 }

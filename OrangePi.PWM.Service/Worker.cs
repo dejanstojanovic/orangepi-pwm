@@ -88,8 +88,8 @@ namespace OrangePi.PWM.Service
                 Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.IntervalSeconds)).Wait();
             }
 
-            //Program exit, spin up fan to max
-            await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), 1000.ToString());
+            //Program exit, set configured value
+            await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), _serviceConfigMonitor.CurrentValue.ExitValue.ToString());
         }
     }
 }

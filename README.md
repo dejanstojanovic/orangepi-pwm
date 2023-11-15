@@ -12,26 +12,6 @@ Connect fan to Orange Pi 5 GND and 5V pins GPIO pins. PWM should be connected to
 ### How does it work?
 Once the configured temperature threshold is reached, process will set PWM value associated with that threshold. Temperature value is checked on configurable period which is 1 second by default but can be changed.
 
-## OrangePi.PWM
-This is simple console application that you can use with simple ```dotnet run OrangePi.PWM/OrangePi.PWM.csproj```. Alternatively you can also publish it and run it's binary, but every code change will require you to rebuild it
-
-All configurations are in the code and in order to change any of the pramaters will requre you to stop and start the process.
-
-To ensure the process is running even after the reboot, you can register it as **systemd** service
-```ini
-[Unit]
-Description=Run PWM control
-
-[Service]
-ExecStart=%h/.dotnet/dotnet run --project /etc/orangepi-pwm/OrangePi.PWM.csproj --property:Configuration=Release
-User=root
-Group=0
-Type=simple
-Restart=no
-
-[Install]
-WantedBy=multi-user.target
-```
 ## OrangePi.PWM.Service
 This project is a proper service library. It is recommended to run it as compiled binary.
 
@@ -78,6 +58,7 @@ Predefined temperature thresholds and PWM values for each threshold are configur
   "ServiceConfiguration": {
     "wPi": 2,
     "IntervalSeconds": 1,
+    "ExitValue": 0,
     "TemperatureConfigurations": [
       {
         "Temperature": 0,
