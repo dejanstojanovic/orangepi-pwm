@@ -24,11 +24,13 @@ namespace OrangePi.Display.Status.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using SpiDevice device = SpiDevice.Create(new SpiConnectionSettings(busId: 1));//vidi sta je ovo
+            //using SpiDevice device = SpiDevice.Create(new SpiConnectionSettings(busId: 1));//vidi sta je ovo
+
             using var spi = new SoftwareSpi(
                 clk: 3, //SPI CLOCK (SCL)
                 sdi: -1,
-                sdo: 4 //SPI DATA (SDA)
+                sdo: 4, //SPI DATA (SDA)
+                cs:7 //ENABLE SIGNAL (CS)
                 );
 
             // PINS
