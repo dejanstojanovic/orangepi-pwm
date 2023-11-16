@@ -8,6 +8,9 @@ using System.Device.Spi;
 using Iot.Device.Spi;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Iot.Device.GrovePiDevice.Sensors;
+using System.Device.Pwm.Drivers;
+
 namespace OrangePi.Display.Status.Service
 {
 
@@ -19,21 +22,30 @@ namespace OrangePi.Display.Status.Service
             )
         {
             _logger = logger;
-
+            var pwm = new SoftwarePwmChannel(8);
+            
+            pwm.Start();
+            pwm.DutyCycle = 100;
+            
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //using SpiDevice device = SpiDevice.Create(new SpiConnectionSettings(busId: 1));//vidi sta je ovo
 
+            var spiSettings = new SpiConnectionSettings(busId: 1);
+            spiSettings.DataBitLength = 8;
+            spiSettings.ClockFrequency = 30000;
+            spiSettings.Mode = SpiMode.Mode0;
+            spiSettings.DataFlow = DataFlow.MsbFirst;
+
             using var spi = new SoftwareSpi(
                 clk: 3, //SPI CLOCK (SCL)
                 sdi: -1,
                 sdo: 4, //SPI DATA (SDA)
                 cs: 7, //ENABLE SIGNAL (CS)
-                settings: null,
-                gpioController: new GpioController(numberingScheme:PinNumberingScheme.Logical)
-                );
+                settings: spiSettings,
+                gpioController: new GpioController(numberingScheme: PinNumberingScheme.Logical));
 
             // PINS
             // https://www.robotics.org.za/IPS-154-ST7789-SPI
@@ -75,7 +87,7 @@ namespace OrangePi.Display.Status.Service
 
             using (var memoryStream = new MemoryStream())
             {
-                bitmap.Save(memoryStream, ImageFormat.Jpeg);
+                bitmap.Save(memoryStream, ImageFormat.Bmp);
                 spi.Write(memoryStream.ToArray());
             }
 

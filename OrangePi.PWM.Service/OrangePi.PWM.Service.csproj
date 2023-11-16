@@ -9,5 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="Iot.Device.Bindings" Version="3.0.0" />
+    <PackageReference Include="System.Device.Gpio" Version="3.0.0" />
   </ItemGroup>
 </Project>
