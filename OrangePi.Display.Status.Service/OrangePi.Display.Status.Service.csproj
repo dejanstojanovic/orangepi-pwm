@@ -8,14 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Program.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Meadow" Version="1.4.0.3" />
-    <PackageReference Include="Meadow.F7" Version="1.4.0.3" />
-    <PackageReference Include="Meadow.Foundation" Version="1.4.0.3" />
-    <PackageReference Include="Meadow.Foundation.Displays.TftSpi" Version="1.4.0.3" />
+    <PackageReference Include="Iot.Device.Bindings" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="System.Device.Gpio" Version="3.0.0" />
   </ItemGroup>
 </Project>
