@@ -30,7 +30,9 @@ namespace OrangePi.Display.Status.Service
                 clk: 3, //SPI CLOCK (SCL)
                 sdi: -1,
                 sdo: 4, //SPI DATA (SDA)
-                cs:7 //ENABLE SIGNAL (CS)
+                cs: 7, //ENABLE SIGNAL (CS)
+                settings: null,
+                gpioController: new GpioController(numberingScheme:PinNumberingScheme.Logical)
                 );
 
             // PINS
@@ -57,12 +59,12 @@ namespace OrangePi.Display.Status.Service
 
             //int currentLine = 0;
 
-            
+
 
             var bitmap = new Bitmap(100, 100);
             var graph = Graphics.FromImage(bitmap);
 
-            graph.FillRectangle(new SolidBrush(Color.FromArgb(alpha:255,red: 0, green:255, blue:0)), new Rectangle
+            graph.FillRectangle(new SolidBrush(Color.FromArgb(alpha: 255, red: 0, green: 255, blue: 0)), new Rectangle
             {
                 X = 5,
                 Y = 5,
@@ -77,12 +79,12 @@ namespace OrangePi.Display.Status.Service
                 spi.Write(memoryStream.ToArray());
             }
 
-            
+
 
 
             //while (!stoppingToken.IsCancellationRequested)
             //{
-           
+
             //}
 
 
