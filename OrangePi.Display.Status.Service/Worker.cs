@@ -22,10 +22,6 @@ namespace OrangePi.Display.Status.Service
             )
         {
             _logger = logger;
-            var pwm = new SoftwarePwmChannel(8);
-            
-            pwm.Start();
-            pwm.DutyCycle = 100;
             
         }
 
