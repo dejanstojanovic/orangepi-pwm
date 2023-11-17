@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Iot.Device.GrovePiDevice.Sensors;
 using System.Device.Pwm.Drivers;
+using Iot.Device.Board;
 
 namespace OrangePi.Display.Status.Service
 {
@@ -34,21 +35,25 @@ namespace OrangePi.Display.Status.Service
         {
             //using SpiDevice device = SpiDevice.Create(new SpiConnectionSettings(busId: 1));//vidi sta je ovo
 
-            var spiSettings = new SpiConnectionSettings(busId: 1);
+            var spiSettings = new SpiConnectionSettings(busId: 1,chipSelectLine:7);
             spiSettings.DataBitLength = 8;
             spiSettings.ClockFrequency = 30000;
             spiSettings.Mode = SpiMode.Mode0;
             spiSettings.DataFlow = DataFlow.MsbFirst;
 
 
+            using var board = Board.Create();
+            var device = board.CreateSpiDevice(spiSettings, new int[] { 3, 4 }, PinNumberingScheme.Logical);
 
-            using var spi = new SoftwareSpi(
-                clk: 3, //SPI CLOCK (SCL)
-                sdi: -1,
-                sdo: 4, //SPI DATA (SDA)
-                cs: 7, //ENABLE SIGNAL (CS)
-                settings: spiSettings,
-                gpioController: new GpioController(numberingScheme: PinNumberingScheme.Logical));
+            var spi = device;
+
+            //using var spi = new SoftwareSpi(
+            //    clk: 3, //SPI CLOCK (SCL)
+            //    sdi: -1,
+            //    sdo: 4, //SPI DATA (SDA)
+            //    cs: 7, //ENABLE SIGNAL (CS)
+            //    settings: spiSettings,
+            //    gpioController: new GpioController(numberingScheme: PinNumberingScheme.Logical));
 
             // PINS
             // https://www.robotics.org.za/IPS-154-ST7789-SPI
