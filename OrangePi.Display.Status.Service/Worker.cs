@@ -22,7 +22,12 @@ namespace OrangePi.Display.Status.Service
             )
         {
             _logger = logger;
-            
+
+            //System.Device.Pwm.PwmChannel buzzerPwm = new SoftwarePwmChannel(12, 400, 0.5, false, null, false);
+            //var buzzer = new Iot.Device.Buzzer.Buzzer(buzzerPwm);
+            //buzzer.StartPlaying(110);
+            //Task.Delay(1000).Wait();
+            //buzzer.StopPlaying();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,6 +39,8 @@ namespace OrangePi.Display.Status.Service
             spiSettings.ClockFrequency = 30000;
             spiSettings.Mode = SpiMode.Mode0;
             spiSettings.DataFlow = DataFlow.MsbFirst;
+
+
 
             using var spi = new SoftwareSpi(
                 clk: 3, //SPI CLOCK (SCL)
