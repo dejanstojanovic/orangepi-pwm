@@ -60,6 +60,8 @@ namespace OrangePi.Display.Status.Service
             // https://www.waveshare.com/wiki/1.14inch_LCD_Module
             // https://techatronic.com/st7789-raspberry-pi/
 
+            //https://github.com/dotnet/iot/blob/main/src/devices/CharacterLcd/samples/Program.cs
+
             //using var lcd = new Lcd2004(registerSelectPin: 0,
             //                        enablePin: 7,
             //                        dataPins: new int[] { 6 },
