@@ -33,6 +33,7 @@ Restart=no
 [Install]
 WantedBy=multi-user.target
 ```
+Place your .service file to **/etc/systemd/system** directory on the Linux host.
 
 To setup and start the service run the following commands
 ```
