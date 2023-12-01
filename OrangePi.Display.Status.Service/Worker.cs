@@ -1,15 +1,8 @@
-using Microsoft.Extensions.Options;
 using System.Device.Gpio;
 using System.Device.I2c;
-using System.Threading;
-using Iot.Device.CharacterLcd;
-using Iot.Device.Pcx857x;
 using System.Device.Spi;
-using Iot.Device.Spi;
 using System.Drawing;
 using System.Drawing.Imaging;
-using Iot.Device.GrovePiDevice.Sensors;
-using System.Device.Pwm.Drivers;
 using Iot.Device.Board;
 
 namespace OrangePi.Display.Status.Service

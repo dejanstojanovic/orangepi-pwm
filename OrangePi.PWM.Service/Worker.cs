@@ -27,6 +27,11 @@ namespace OrangePi.PWM.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            using (var buzzer = new BuzzerService(_serviceConfigMonitor.CurrentValue.BuzzerPin))
+            {
+                await buzzer.Play(4600, TimeSpan.FromMicroseconds(300));
+            }
+
             double previousValue = 0;
             await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.wPi.ToString(), "pwm");
 
@@ -95,6 +100,11 @@ namespace OrangePi.PWM.Service
             }
 
             //Program exit, set configured value
+            using (var buzzer = new BuzzerService(_serviceConfigMonitor.CurrentValue.BuzzerPin))
+            {
+                await buzzer.Play(4600, TimeSpan.FromMicroseconds(600));
+            }
+
             await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.wPi.ToString(), _serviceConfigMonitor.CurrentValue.ExitValue.ToString());
         }
     }
