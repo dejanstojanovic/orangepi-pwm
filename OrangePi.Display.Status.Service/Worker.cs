@@ -33,6 +33,21 @@ namespace OrangePi.Display.Status.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var i2cDevice = I2cDevice.Create(new I2cConnectionSettings(1, 1));
+            using var lcd = new Iot.Device.Ssd13xx.Ssd1306(i2cDevice,128,64);
+
+            lcd.Font = new DoubleByteFont();
+            lcd.DrawString(2, 2, "TEST1", 2, false);
+            lcd.DrawString(2, 34, "TEST2", 1, true);
+            lcd.Display();
+
+            //var bitmap = Iot.Device.Graphics.BitmapImage.CreateBitmap(128, 64, Iot.Device.Graphics.PixelFormat.Format16bppRgb565);
+            //var draw = bitmap.GetDrawingApi();
+
+            //lcd.ClearScreen();
+            //lcd.DrawBitmap
+
+            //++++++++++++++++++++++++++++++++++++++++
             //using SpiDevice device = SpiDevice.Create(new SpiConnectionSettings(busId: 1));//vidi sta je ovo
 
             var spiSettings = new SpiConnectionSettings(busId: 1,chipSelectLine:7);
