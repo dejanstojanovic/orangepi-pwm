@@ -1,8 +1,7 @@
 using Iot.Device.CpuTemperature;
 using Microsoft.Extensions.Options;
+using OrangePi.Common.Services;
 using OrangePi.PWM.Service.Models;
-using OrangePi.PWM.Service.Services;
-using UnitsNet;
 
 namespace OrangePi.PWM.Service
 {
@@ -12,12 +11,12 @@ namespace OrangePi.PWM.Service
         private readonly ILogger<Worker> _logger;
         private readonly IOptionsMonitor<ServiceConfiguration> _serviceConfigMonitor;
         private readonly IProcessRunner _processRunner;
-        private readonly CpuTemperature _cpuTemperature;
+        private readonly ITemperatureService _cpuTemperature;
         public Worker(
             ILogger<Worker> logger,
             IOptionsMonitor<ServiceConfiguration> serviceConfigMonitor,
             IProcessRunner processRunner,
-            CpuTemperature cpuTemperature)
+            ITemperatureService cpuTemperature)
         {
             _logger = logger;
             _serviceConfigMonitor = serviceConfigMonitor;
@@ -70,20 +69,7 @@ namespace OrangePi.PWM.Service
                 }
                 #endregion
 
-                if (!double.IsNaN(_cpuTemperature.Temperature.DegreesCelsius) &&
-                    _cpuTemperature.Temperature.DegreesCelsius > 0)
-                {
-                    temperature = _cpuTemperature.Temperature.DegreesCelsius;
-                }
-                else
-                {
-                    var temeratureCheckOutput = await _processRunner.RunAsync("cat", "/sys/class/thermal/thermal_zone0/temp");
-                    if (double.TryParse(temeratureCheckOutput, out double temperatureCheckValue) &&
-                        temperatureCheckValue > 0)
-                    {
-                        temperature = temperatureCheckValue / 1000;
-                    }
-                }
+                temperature = await _cpuTemperature.GetCpuTemperature();
 
                 var value = ranges.SingleOrDefault(r => temperature >= r.Start && temperature <= r.End)?.Value;
                 value = value ?? 0;

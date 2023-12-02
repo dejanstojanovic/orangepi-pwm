@@ -1,7 +1,7 @@
 ﻿using System.Device.Pwm;
 using System.Device.Pwm.Drivers;
 
-namespace OrangePi.PWM.Service.Services
+namespace OrangePi.Common.Services
 {
     public class BuzzerService : IBuzzerService
     {

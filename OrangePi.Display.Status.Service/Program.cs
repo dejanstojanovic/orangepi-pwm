@@ -1,5 +1,7 @@
 // https://learn.microsoft.com/en-us/dotnet/iot/tutorials/lcd-display
 
+using Iot.Device.CpuTemperature;
+using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -15,6 +17,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddOptions();
         services.AddHostedService<Worker>();
+        services.AddSingleton<IProcessRunner, ProcessRunner>();
     })
     .ConfigureLogging(logging =>
     {

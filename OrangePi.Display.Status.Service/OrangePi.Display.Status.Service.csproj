@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
+    <Platforms>AnyCPU;ARM64</Platforms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-OrangePi.Display.Status.Service-a17b8bb9-d6f6-4b9a-a1ee-a240be470b7b</UserSecretsId>
@@ -11,5 +12,11 @@
     <PackageReference Include="Iot.Device.Bindings" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="System.Device.Gpio" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\OrangePi.Common\OrangePi.Common.csproj" />
+    <ProjectReference Include="..\SkiaSharpAdapter\SkiaSharpAdapter.csproj" />
   </ItemGroup>
 </Project>
