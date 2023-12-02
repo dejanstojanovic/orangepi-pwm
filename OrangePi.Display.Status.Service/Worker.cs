@@ -28,7 +28,7 @@ namespace OrangePi.Display.Status.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var fontSize = 24;
+            var fontSize = 16;
             var font = "DejaVu Sans";
             var y = 0;
 
@@ -40,11 +40,11 @@ namespace OrangePi.Display.Status.Service
                     {
                         using (var image = BitmapImage.CreateBitmap(128, 32, PixelFormat.Format32bppArgb))
                         {
-                            var cpuTemp = Math.Round(await _temperatureService.GetCpuTemperature(), 2);
-                            var cpuUsage = _processRunner.RunAsync("echo \"$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]\"");
+                            var cpuTemp = Math.Round(await _temperatureService.GetCpuTemperature(),1);
+                            //var cpuUsage = await _processRunner.RunAsync("echo", "\"$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]\"");
                             image.Clear(Color.Black);
                             var g = image.GetDrawingApi();
-                            g.DrawText($"CPU: {cpuTemp}°C {cpuTemp}%", font, fontSize, Color.White, new Point(0, 0));
+                            g.DrawText($"CPU: {cpuTemp}°C", font, fontSize, Color.White, new Point(10, 5));
                             //g.DrawText($"CPU: {cpuTemp}°C", font, fontSize, Color.White, new Point(0, fontSize));
                             ssd1306.DrawBitmap(image);
 

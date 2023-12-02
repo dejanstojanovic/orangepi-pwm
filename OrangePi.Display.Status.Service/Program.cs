@@ -18,6 +18,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddOptions();
         services.AddHostedService<Worker>();
         services.AddSingleton<IProcessRunner, ProcessRunner>();
+        services.AddSingleton<ITemperatureService, TemperatureService>();
     })
     .ConfigureLogging(logging =>
     {
