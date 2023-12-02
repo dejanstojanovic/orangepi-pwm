@@ -11,6 +11,11 @@
         }
 
         /// <summary>
+        /// Buzzer GPIO pin
+        /// </summary>
+        public int BuzzerPin { get; set; }
+
+        /// <summary>
         /// wPi column value from "gpio readall"
         /// </summary>
         public int wPi { get; set; }
