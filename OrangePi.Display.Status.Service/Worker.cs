@@ -30,6 +30,7 @@ namespace OrangePi.Display.Status.Service
         {
             var fontSize = 16;
             var font = "DejaVu Sans";
+            //var font = "Date Stamp";
             var y = 0;
 
             using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
