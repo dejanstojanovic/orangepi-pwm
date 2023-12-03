@@ -42,7 +42,8 @@ namespace OrangePi.Display.Status.Service
                 var cpuTemp = await _temperatureService.GetCpuTemperature();
                 return $"CPU:{Math.Round(cpuTemp, 1)}°C";
             });
-            //values.Add(async () => await Task.FromResult("val 2"));
+            values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));
+            values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("yyyy-MM-dd")}"));
 
             //https://pinout.xyz/pinout/i2c
             using (var device = I2cDevice.Create(new I2cConnectionSettings(_serviceConfiguration.BusId, _serviceConfiguration.DeviceAddress)))
