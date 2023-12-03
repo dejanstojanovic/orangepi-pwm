@@ -5,41 +5,50 @@ namespace OrangePi.Common.Services
 {
     public class BuzzerService : IBuzzerService
     {
-        readonly PwmChannel _buzzerPwmChannel;
+
         public BuzzerService(int gpio,int pwmFrequency, double pwmDuty)
         {
             GPIO = gpio;
-            _buzzerPwmChannel = new SoftwarePwmChannel(gpio, pwmFrequency, pwmDuty, false, null, false);
+            PWMFrequency= pwmFrequency;
+            PWMDuty = pwmDuty;
         }
         public int GPIO { get; init; }
+        public int PWMFrequency { get; init; }
+        public double PWMDuty { get; init; }
 
         public async Task Play(int frequency, TimeSpan lenght)
         {
-            using (var buzzer = new Iot.Device.Buzzer.Buzzer(_buzzerPwmChannel))
+            using (var pwmCahnnel = new SoftwarePwmChannel(this.GPIO, this.PWMFrequency, this.PWMDuty, false, null, false))
             {
-                buzzer.StartPlaying(frequency);
-                await Task.Delay(lenght);
-                buzzer.StopPlaying();
+                using (var buzzer = new Iot.Device.Buzzer.Buzzer(pwmCahnnel))
+                {
+                    buzzer.StartPlaying(frequency);
+                    await Task.Delay(lenght);
+                    buzzer.StopPlaying();
+                }
             }
         }
 
         public async Task Play(int frequency, TimeSpan lenght, TimeSpan pause, int times)
         {
-            using (var buzzer = new Iot.Device.Buzzer.Buzzer(_buzzerPwmChannel))
+            using (var pwmCahnnel = new SoftwarePwmChannel(GPIO, PWMFrequency, PWMDuty, false, null, false))
             {
-                for (int i = 0; i < times; i++)
+                using (var buzzer = new Iot.Device.Buzzer.Buzzer(pwmCahnnel))
                 {
-                    buzzer.StartPlaying(frequency);
-                    await Task.Delay(lenght);
-                    buzzer.StopPlaying();
-                    await Task.Delay(pause);
+                    for (int i = 0; i < times; i++)
+                    {
+                        buzzer.StartPlaying(frequency);
+                        await Task.Delay(lenght);
+                        buzzer.StopPlaying();
+                        await Task.Delay(pause);
+                    }
                 }
             }
         }
 
         public void Dispose()
         {
-            _buzzerPwmChannel.Dispose();
+
         }
     }
 }

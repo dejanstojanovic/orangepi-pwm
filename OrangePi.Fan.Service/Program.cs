@@ -21,7 +21,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddProcessRunner()
                 .AddTemperatureCheck()
-                .AddBuzzer(138, 1000400, 09);
+                .AddBuzzer(138, 1000400, 0.9);
         
     })
     .ConfigureLogging(logging =>
