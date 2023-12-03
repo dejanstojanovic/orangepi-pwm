@@ -33,16 +33,14 @@ namespace OrangePi.Display.Status.Service
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var pause = _serviceConfiguration.Pause;
-            var fontSize = 16;
-            var font = "DejaVu Sans";
-            //var font = "Date Stamp";
-            var y = 0;
+            var fontSize = 20;
+            var font = "DejaVu Sans Bold";
 
             var values = new List<Func<Task<String>>>();
             values.Add(async () =>
             {
                 var cpuTemp = await _temperatureService.GetCpuTemperature();
-                return $"CPU: {Math.Round(cpuTemp, 1)}°C";
+                return $"CPU:{Math.Round(cpuTemp, 1)}°C";
             });
             //values.Add(async () => await Task.FromResult("val 2"));
 
@@ -59,7 +57,9 @@ namespace OrangePi.Display.Status.Service
                             {
                                 image.Clear(Color.Black);
                                 var g = image.GetDrawingApi();
-                                g.DrawText(await value(), font, fontSize, Color.White, new Point(10, 5));
+                                g.DrawText(await value(), font, fontSize, Color.White, new Point(0, 2));
+                                g.GetCanvas().RotateDegrees(180); //Flip Image
+                                g.GetCanvas().Save();
                                 ssd1306.DrawBitmap(image);
 
                             }

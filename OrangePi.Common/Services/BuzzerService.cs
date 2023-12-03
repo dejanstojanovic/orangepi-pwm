@@ -6,10 +6,10 @@ namespace OrangePi.Common.Services
     public class BuzzerService : IBuzzerService
     {
         readonly PwmChannel _buzzerPwmChannel;
-        public BuzzerService(int gpio)
+        public BuzzerService(int gpio,int pwmFrequency, double pwmDuty)
         {
             GPIO = gpio;
-            _buzzerPwmChannel = new SoftwarePwmChannel(gpio, 400, 0.5, false, null, false);
+            _buzzerPwmChannel = new SoftwarePwmChannel(gpio, pwmFrequency, pwmDuty, false, null, false);
         }
         public int GPIO { get; init; }
 

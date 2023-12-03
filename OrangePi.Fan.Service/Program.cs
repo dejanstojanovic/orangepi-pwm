@@ -1,7 +1,8 @@
 using Iot.Device.CpuTemperature;
+using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
-using OrangePi.PWM.Service;
-using OrangePi.PWM.Service.Models;
+using OrangePi.Fan.Service;
+using OrangePi.Fan.Service.Models;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((hostContext, config) =>
@@ -17,10 +18,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddOptions();
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
         services.AddHostedService<Worker>();
-        services.AddSingleton<IProcessRunner, ProcessRunner>();
-        services.AddSingleton<ITemperatureService, TemperatureService>();
-        
 
+        services.AddProcessRunner()
+                .AddTemperatureCheck()
+                .AddBuzzer(138, 1000400, 09);
+        
     })
     .ConfigureLogging(logging =>
     {
