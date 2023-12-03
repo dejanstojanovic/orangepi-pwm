@@ -32,9 +32,9 @@ namespace OrangePi.Display.Status.Service
         
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var pause = _serviceConfiguration.Pause;
-            var fontSize = 20;
-            var font = "DejaVu Sans Bold";
+            var pause = _serviceConfiguration.IntervalTimeSpan;
+            var fontSize = _serviceConfiguration.FontSize;
+            var font = _serviceConfiguration.FontName;
 
             var values = new List<Func<Task<String>>>();
             values.Add(async () =>
@@ -53,13 +53,16 @@ namespace OrangePi.Display.Status.Service
                     {
                         foreach (var value in values)
                         {
-                            using (var image = BitmapImage.CreateBitmap(128, 32, PixelFormat.Format32bppArgb))
+                            using (var image = BitmapImage.CreateBitmap(128, 64, PixelFormat.Format32bppArgb))
                             {
                                 image.Clear(Color.Black);
                                 var g = image.GetDrawingApi();
-                                g.DrawText(await value(), font, fontSize, Color.White, new Point(0, 2));
-                                g.GetCanvas().RotateDegrees(180); //Flip Image
-                                g.GetCanvas().Save();
+                                g.DrawText(text: await value(), 
+                                    fontFamilyName: font, 
+                                    size: fontSize, 
+                                    color: Color.White, 
+                                    position: new Point(_serviceConfiguration.OffsetX, _serviceConfiguration.OffsetY));
+
                                 ssd1306.DrawBitmap(image);
 
                             }
