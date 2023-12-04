@@ -77,6 +77,12 @@ namespace OrangePi.Display.Status.Service
 
                             }
                             await Task.Delay(pause);
+
+                            if (_serviceConfiguration.BlinkOnChange)
+                            {
+                                ssd1306.ClearScreen();
+                                await Task.Delay(TimeSpan.FromMilliseconds(200));
+                            }
                         }
                     }
                     ssd1306.ClearScreen();
