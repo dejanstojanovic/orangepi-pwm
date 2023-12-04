@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.Models;
 using System.Device.I2c;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace OrangePi.Display.Status.Service
@@ -40,7 +41,17 @@ namespace OrangePi.Display.Status.Service
             values.Add(async () =>
             {
                 var cpuTemp = await _temperatureService.GetCpuTemperature();
-                return $"CPU:{Math.Round(cpuTemp, 1)}°C";
+                return $"SOC:{Math.Round(cpuTemp, 1)}°C";
+            });
+            values.Add(async () =>
+            {
+                var inf = new ProcessStartInfo("/bin/bash", " -c \"echo $[100-$(vmstat 1 2|tail -1|awk '{print $15}')]\"");
+                inf.RedirectStandardOutput = true;
+                inf.UseShellExecute = false;
+                var proc = Process.Start(inf);
+                var val = await proc.StandardOutput.ReadToEndAsync();
+                proc.WaitForExit();
+                return $"CPU:{val}%";
             });
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("yyyy-MM-dd")}"));
