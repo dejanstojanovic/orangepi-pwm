@@ -29,7 +29,7 @@ namespace OrangePi.Display.Status.Service
             SkiaSharpAdapter.Register();
         }
 
-        
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var pause = _serviceConfiguration.IntervalTimeSpan;
@@ -58,10 +58,19 @@ namespace OrangePi.Display.Status.Service
                             {
                                 image.Clear(Color.Black);
                                 var g = image.GetDrawingApi();
-                                g.DrawText(text: await value(), 
-                                    fontFamilyName: font, 
-                                    size: fontSize, 
-                                    color: Color.White, 
+
+                                if (_serviceConfiguration.Rotate)
+                                {
+                                    var c = g.GetCanvas();
+                                    c.Translate(image.Width / 2, image.Height / 2);
+                                    c.RotateDegrees((float)180);
+                                    c.Translate(-image.Width / 2, -image.Height / 2);
+                                }
+
+                                g.DrawText(text: await value(),
+                                    fontFamilyName: font,
+                                    size: fontSize,
+                                    color: Color.White,
                                     position: new Point(_serviceConfiguration.OffsetX, _serviceConfiguration.OffsetY));
 
                                 ssd1306.DrawBitmap(image);

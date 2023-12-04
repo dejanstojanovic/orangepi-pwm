@@ -17,6 +17,7 @@ namespace OrangePi.Display.Status.Service.Models
         public int FontSize { get; set; }
         public int OffsetX { get; set; }
         public int OffsetY { get; set; }
+        public bool Rotate { get; set; }
 
         public TimeSpan IntervalTimeSpan
         {

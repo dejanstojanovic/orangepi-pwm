@@ -21,6 +21,7 @@
     <Compile Include="System/Device/Spi/*.cs" />
     <Compile Include="Interop/**/*.cs" />
     <Compile Remove="Iot\Device\Graphics\BitmapImage.cs" />
+    <Compile Remove="Iot\Device\Graphics\ImageFileType.cs" />
     <Compile Remove="Iot\Device\Graphics\PixelFormat.cs" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
