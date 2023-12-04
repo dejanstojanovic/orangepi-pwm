@@ -51,7 +51,7 @@ namespace OrangePi.Display.Status.Service
                 var proc = Process.Start(inf);
                 var val = await proc.StandardOutput.ReadToEndAsync();
                 proc.WaitForExit();
-                return $"CPU:{val}%";
+                return $"CPU:{val?.Trim()}%";
             });
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("yyyy-MM-dd")}"));
