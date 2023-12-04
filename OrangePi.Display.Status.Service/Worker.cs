@@ -41,7 +41,7 @@ namespace OrangePi.Display.Status.Service
             values.Add(async () =>
             {
                 var cpuTemp = await _temperatureService.GetCpuTemperature();
-                return $"SOC:{Math.Round(cpuTemp, 1)}°C";
+                return $"SoC:{Math.Round(cpuTemp, 1)}°C";
             });
             values.Add(async () =>
             {
