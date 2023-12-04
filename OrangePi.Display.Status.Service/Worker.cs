@@ -54,7 +54,7 @@ namespace OrangePi.Display.Status.Service
                     {
                         foreach (var value in values)
                         {
-                            using (var image = BitmapImage.CreateBitmap(128, 64, PixelFormat.Format32bppArgb))
+                            using (var image = BitmapImage.CreateBitmap(ssd1306.ScreenWidth, ssd1306.ScreenHeight, PixelFormat.Format32bppArgb))
                             {
                                 image.Clear(Color.Black);
                                 var g = image.GetDrawingApi();
