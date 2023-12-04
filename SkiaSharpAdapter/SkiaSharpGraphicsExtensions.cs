@@ -58,6 +58,7 @@ namespace Iot.Device.Graphics.SkiaSharpAdapter
                 canvas.DrawText(t, currentPosition, paint);
                 currentPosition.Y += lineSpacing;
             }
+
         }
 
         /// <summary>

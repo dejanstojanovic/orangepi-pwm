@@ -1,0 +1,13 @@
+[Unit]
+Description=Run fan PWM control
+
+[Service]
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-fan/OrangePi.Fan.Service.dll
+WorkingDirectory=/etc/orangepi-fan
+User=root
+Group=0
+Type=simple
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

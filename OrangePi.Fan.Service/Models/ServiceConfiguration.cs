@@ -1,4 +1,4 @@
-﻿namespace OrangePi.PWM.Service.Models
+﻿namespace OrangePi.Fan.Service.Models
 {
     public class ServiceConfiguration
     {
@@ -11,14 +11,9 @@
         }
 
         /// <summary>
-        /// Buzzer GPIO pin
-        /// </summary>
-        public int BuzzerPin { get; set; }
-
-        /// <summary>
         /// wPi column value from "gpio readall"
         /// </summary>
-        public int wPi { get; set; }
+        public int WiringPi { get; set; }
 
         /// <summary>
         /// List of speed configurations for each temperature range
@@ -28,11 +23,14 @@
         /// <summary>
         /// Interval for checking the temperature
         /// </summary>
-        public int IntervalSeconds { get; set; }
+        public double TemperatureCheckInterval { get; set; }
 
         /// <summary>
         /// Value to set to PWM when service is shutting down
         /// </summary>
-        public int ExitValue { get; set; }
+        public int ValueToSetOnExit { get; set; }
+
+        public SoundConfig StartSound { get; set; }
+        public SoundConfig ExitSound { get; set; }
     }
 }

@@ -1,0 +1,13 @@
+[Unit]
+Description=Run status display
+
+[Service]
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-status-display/OrangePi.Display.Status.Service.dll
+WorkingDirectory=/etc/orangepi-status-display
+User=root
+Group=0
+Type=simple
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

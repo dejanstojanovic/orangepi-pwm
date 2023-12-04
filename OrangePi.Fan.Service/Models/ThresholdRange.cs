@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrangePi.PWM.Service.Models
+namespace OrangePi.Fan.Service.Models
 {
     class ThresholdRange
     {

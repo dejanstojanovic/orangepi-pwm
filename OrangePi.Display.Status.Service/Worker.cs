@@ -29,22 +29,21 @@ namespace OrangePi.Display.Status.Service
             SkiaSharpAdapter.Register();
         }
 
-        
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var pause = _serviceConfiguration.Pause;
-            var fontSize = 16;
-            var font = "DejaVu Sans";
-            //var font = "Date Stamp";
-            var y = 0;
+            var pause = _serviceConfiguration.IntervalTimeSpan;
+            var fontSize = _serviceConfiguration.FontSize;
+            var font = _serviceConfiguration.FontName;
 
             var values = new List<Func<Task<String>>>();
             values.Add(async () =>
             {
                 var cpuTemp = await _temperatureService.GetCpuTemperature();
-                return $"CPU: {Math.Round(cpuTemp, 1)}°C";
+                return $"CPU:{Math.Round(cpuTemp, 1)}°C";
             });
-            //values.Add(async () => await Task.FromResult("val 2"));
+            values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));
+            values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("yyyy-MM-dd")}"));
 
             //https://pinout.xyz/pinout/i2c
             using (var device = I2cDevice.Create(new I2cConnectionSettings(_serviceConfiguration.BusId, _serviceConfiguration.DeviceAddress)))
@@ -55,15 +54,35 @@ namespace OrangePi.Display.Status.Service
                     {
                         foreach (var value in values)
                         {
-                            using (var image = BitmapImage.CreateBitmap(128, 32, PixelFormat.Format32bppArgb))
+                            using (var image = BitmapImage.CreateBitmap(ssd1306.ScreenWidth, ssd1306.ScreenHeight, PixelFormat.Format32bppArgb))
                             {
                                 image.Clear(Color.Black);
                                 var g = image.GetDrawingApi();
-                                g.DrawText(await value(), font, fontSize, Color.White, new Point(10, 5));
+
+                                if (_serviceConfiguration.Rotate)
+                                {
+                                    var c = g.GetCanvas();
+                                    c.Translate(image.Width / 2, image.Height / 2);
+                                    c.RotateDegrees((float)180);
+                                    c.Translate(-image.Width / 2, -image.Height / 2);
+                                }
+
+                                g.DrawText(text: await value(),
+                                    fontFamilyName: font,
+                                    size: fontSize,
+                                    color: Color.White,
+                                    position: new Point(_serviceConfiguration.OffsetX, _serviceConfiguration.OffsetY));
+
                                 ssd1306.DrawBitmap(image);
 
                             }
                             await Task.Delay(pause);
+
+                            if (_serviceConfiguration.BlinkOnChange)
+                            {
+                                ssd1306.ClearScreen();
+                                await Task.Delay(TimeSpan.FromMilliseconds(200));
+                            }
                         }
                     }
                     ssd1306.ClearScreen();
