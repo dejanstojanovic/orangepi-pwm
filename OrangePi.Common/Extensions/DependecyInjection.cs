@@ -3,6 +3,7 @@ using OrangePi.Common.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +28,21 @@ namespace OrangePi.Common.Extensions
         {
             services.AddSingleton<ITemperatureService, TemperatureService>();
             return services;
+        }
+
+        public static IServiceCollection AddGlancesService(this IServiceCollection services, Uri apiUrl)
+        {
+            services.AddHttpClient("glances", c =>
+            {
+                c.BaseAddress = apiUrl;
+            });
+            services.AddSingleton<IGlancesService, GlancesService>();
+            return services;
+        }
+
+        public static IServiceCollection AddGlancesService(this IServiceCollection services, string apiUrl)
+        {
+            return services.AddGlancesService(new Uri(apiUrl));
         }
     }
 }

@@ -16,17 +16,20 @@ namespace OrangePi.Display.Status.Service
         private readonly ITemperatureService _temperatureService;
         private readonly IProcessRunner _processRunner;
         private readonly ServiceConfiguration _serviceConfiguration;
+        private readonly IGlancesService _glancesService;
         public Worker(
             ILogger<Worker> logger,
             ITemperatureService temperatureService,
             IProcessRunner processRunner,
-            IOptions<ServiceConfiguration> serviceConfiguration
+            IOptions<ServiceConfiguration> serviceConfiguration,
+            IGlancesService glancesService
             )
         {
             _logger = logger;
             _temperatureService = temperatureService;
             _processRunner = processRunner;
             _serviceConfiguration = serviceConfiguration.Value;
+            _glancesService = glancesService;
             SkiaSharpAdapter.Register();
         }
 
@@ -45,13 +48,13 @@ namespace OrangePi.Display.Status.Service
             });
             values.Add(async () =>
             {
-                var inf = new ProcessStartInfo("/bin/bash", " -c \"echo $[100-$(vmstat 1 2|tail -1|awk '{print $15}')]\"");
-                inf.RedirectStandardOutput = true;
-                inf.UseShellExecute = false;
-                var proc = Process.Start(inf);
-                var val = await proc.StandardOutput.ReadToEndAsync();
-                proc.WaitForExit();
-                return $"CPU:{val?.Trim()}%";
+                var cpuUsage = await _glancesService.GetCpuUsage();
+                return $"CPU:{Math.Round(cpuUsage.Total, 1)}%";
+            });
+            values.Add(async () =>
+            {
+                var memUsage = await _glancesService.GetMemoryUsage();
+                return $"MEM:{Math.Round(memUsage.Percent, 1)}%";
             });
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("yyyy-MM-dd")}"));
@@ -87,6 +90,10 @@ namespace OrangePi.Display.Status.Service
                                 ssd1306.DrawBitmap(image);
 
                             }
+
+                            if (stoppingToken.IsCancellationRequested)
+                                break;
+
                             await Task.Delay(pause);
 
                             if (_serviceConfiguration.BlinkOnChange)
@@ -94,6 +101,7 @@ namespace OrangePi.Display.Status.Service
                                 ssd1306.ClearScreen();
                                 await Task.Delay(TimeSpan.FromMilliseconds(200));
                             }
+
                         }
                     }
                     ssd1306.ClearScreen();

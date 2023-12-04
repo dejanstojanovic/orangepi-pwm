@@ -1,5 +1,6 @@
 // https://learn.microsoft.com/en-us/dotnet/iot/tutorials/lcd-display
 
+using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
 using OrangePi.Display.Status.Service.Models;
@@ -21,6 +22,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker>();
         services.AddSingleton<IProcessRunner, ProcessRunner>();
         services.AddSingleton<ITemperatureService, TemperatureService>();
+        services.AddGlancesService("http://192.168.1.25:61208/");
     })
     .ConfigureLogging(logging =>
     {
