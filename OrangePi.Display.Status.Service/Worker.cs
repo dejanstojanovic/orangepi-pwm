@@ -64,8 +64,6 @@ namespace OrangePi.Display.Status.Service
             {
                 using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, 128, 64))
                 {
-                    ssd1306.SendCommand(new Ssd1306Command(0x01));
-
                     while (!stoppingToken.IsCancellationRequested)
                     {
                         foreach (var value in values)
@@ -76,7 +74,8 @@ namespace OrangePi.Display.Status.Service
                                 var g = image.GetDrawingApi();
 
                                 if (_serviceConfiguration.Rotate)
-                                {
+                                { 
+                                    //TODO: investigate how to make this work
                                     var c = g.GetCanvas();
                                     c.Translate(image.Width / 2, image.Height / 2);
                                     c.RotateDegrees((float)180);
