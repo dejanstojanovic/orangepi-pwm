@@ -64,8 +64,6 @@ namespace OrangePi.Display.Status.Service
             {
                 using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, 128, 64))
                 {
-                    ssd1306.SendCommand(new Ssd1306Command(0x01));
-
                     while (!stoppingToken.IsCancellationRequested)
                     {
                         foreach (var value in values)
