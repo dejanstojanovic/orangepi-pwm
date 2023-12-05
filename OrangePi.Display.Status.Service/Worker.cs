@@ -59,9 +59,6 @@ namespace OrangePi.Display.Status.Service
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("yyyy-MM-dd")}"));
 
-            var test = await _glancesService.GetCpuUsage();
-
-
             //https://pinout.xyz/pinout/i2c
             using (var device = I2cDevice.Create(new I2cConnectionSettings(_serviceConfiguration.BusId, _serviceConfiguration.DeviceAddress)))
             {
