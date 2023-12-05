@@ -74,12 +74,9 @@ namespace OrangePi.Display.Status.Service
                                 var g = image.GetDrawingApi();
 
                                 if (_serviceConfiguration.Rotate)
-                                { 
-                                    //TODO: investigate how to make this work
-                                    var c = g.GetCanvas();
-                                    c.Translate(image.Width / 2, image.Height / 2);
-                                    c.RotateDegrees((float)180);
-                                    c.Translate(-image.Width / 2, -image.Height / 2);
+                                {
+                                    ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
+                                    ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
                                 }
 
                                 g.DrawText(text: await value(),
