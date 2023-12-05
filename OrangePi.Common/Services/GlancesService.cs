@@ -5,7 +5,6 @@ namespace OrangePi.Common.Services
 {
     public class GlancesService : IGlancesService
     {
-        readonly Uri _glancesApi;
         private readonly HttpClient _httpClient;
 
         public GlancesService(HttpClient httpClient)
