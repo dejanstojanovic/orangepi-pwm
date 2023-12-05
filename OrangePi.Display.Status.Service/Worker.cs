@@ -41,29 +41,60 @@ namespace OrangePi.Display.Status.Service
             var font = _serviceConfiguration.FontName;
 
             var values = new List<Func<Task<String>>>();
+
+            #region Add values func
             values.Add(async () =>
             {
-                var cpuTemp = await _temperatureService.GetCpuTemperature();
-                return $"SoC:{Math.Round(cpuTemp, 1)}°C";
+                try
+                {
+                    var cpuTemp = await _temperatureService.GetCpuTemperature();
+                    return $"SoC:{Math.Round(cpuTemp, 1)}°C";
+                }
+                catch
+                {
+                    return "SoC: ?";
+                }
             });
             values.Add(async () =>
             {
-                var cpuUsage = await _glancesService.GetCpuUsage();
-                return $"CPU:{Math.Round(cpuUsage.Total, 1)}%";
+                try
+                {
+                    var cpuUsage = await _glancesService.GetCpuUsage();
+                    return $"CPU:{Math.Round(cpuUsage.Total, 1)}%";
+                }
+                catch
+                {
+                    return "CPU: ?";
+                }
             });
             values.Add(async () =>
             {
-                var memUsage = await _glancesService.GetMemoryUsage();
-                return $"MEM:{Math.Round(memUsage.Percent, 1)}%";
+                try
+                {
+                    var memUsage = await _glancesService.GetMemoryUsage();
+                    return $"MEM:{Math.Round(memUsage.Percent, 1)}%";
+                }
+                catch
+                {
+                    return "MEM: ?";
+                }
             });
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("yyyy-MM-dd")}"));
+            #endregion
+
 
             //https://pinout.xyz/pinout/i2c
             using (var device = I2cDevice.Create(new I2cConnectionSettings(_serviceConfiguration.BusId, _serviceConfiguration.DeviceAddress)))
             {
                 using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, 128, 64))
                 {
+                    if (_serviceConfiguration.Rotate)
+                    {
+                        ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
+                        ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
+                    }
+
                     while (!stoppingToken.IsCancellationRequested)
                     {
                         foreach (var value in values)
@@ -73,11 +104,7 @@ namespace OrangePi.Display.Status.Service
                                 image.Clear(Color.Black);
                                 var g = image.GetDrawingApi();
 
-                                if (_serviceConfiguration.Rotate)
-                                {
-                                    ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
-                                    ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
-                                }
+
 
                                 g.DrawText(text: await value(),
                                     fontFamilyName: font,
