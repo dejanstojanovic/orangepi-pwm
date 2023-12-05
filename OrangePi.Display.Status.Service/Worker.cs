@@ -74,7 +74,8 @@ namespace OrangePi.Display.Status.Service
                                 var g = image.GetDrawingApi();
 
                                 if (_serviceConfiguration.Rotate)
-                                {
+                                { 
+                                    //TODO: investigate how to make this work
                                     var c = g.GetCanvas();
                                     c.Translate(image.Width / 2, image.Height / 2);
                                     c.RotateDegrees((float)180);

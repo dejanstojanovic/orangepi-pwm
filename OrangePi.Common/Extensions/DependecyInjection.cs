@@ -32,7 +32,7 @@ namespace OrangePi.Common.Extensions
 
         public static IServiceCollection AddGlancesService(this IServiceCollection services, Uri apiUrl)
         {
-            services.AddHttpClient("glances", c =>
+            services.AddHttpClient<GlancesService>(c =>
             {
                 c.BaseAddress = apiUrl;
             });
