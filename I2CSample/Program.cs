@@ -6,6 +6,7 @@ using System.Device.I2c;
 using System.Diagnostics;
 using System.Drawing;
 
+SkiaSharpAdapter.Register();
 using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
 {
     using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, 128, 64))
@@ -28,17 +29,17 @@ using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
                 color: Color.White,
                 position: new Point(0, 0));
 
-            g.DrawText(text: "RAM 32.8% 12.8/16GB",
+            g.DrawText(text: "RAM 32.8% 12.8GB",
                 fontFamilyName: font,
                 size: fontSize,
                 color: Color.White,
-                position: new Point(0, fontSize+1));
+                position: new Point(0, fontSize));
 
-            g.DrawText(text: "IO 23.6% 120.2/512GB",
-               fontFamilyName: font,
-               size: fontSize,
-               color: Color.White,
-               position: new Point(0, (fontSize * 2)));
+            //g.DrawText(text: "IO 23.6% 120.2/512GB",
+            //   fontFamilyName: font,
+            //   size: fontSize,
+            //   color: Color.White,
+            //   position: new Point(0, (fontSize * 2)));
 
             //g.DrawText(text: "UP 123 days, 20:30:06",
             //   fontFamilyName: font,
