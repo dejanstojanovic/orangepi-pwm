@@ -32,13 +32,19 @@ using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
                 fontFamilyName: font,
                 size: fontSize,
                 color: Color.White,
-                position: new Point(0, fontSize));
+                position: new Point(0, fontSize+1));
 
-            g.DrawText(text: "Block 22.8%",
+            g.DrawText(text: "IO 23.6% 120.2/512GB",
                fontFamilyName: font,
                size: fontSize,
                color: Color.White,
-               position: new Point(0, (fontSize*2)));
+               position: new Point(0, (fontSize * 2)));
+
+            //g.DrawText(text: "UP 123 days, 20:30:06",
+            //   fontFamilyName: font,
+            //   size: fontSize,
+            //   color: Color.White,
+            //   position: new Point(0, fontSize));
 
             ssd1306.DrawBitmap(image);
 
