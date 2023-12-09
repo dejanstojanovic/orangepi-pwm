@@ -48,11 +48,11 @@ namespace OrangePi.Display.Status.Service
                 try
                 {
                     var cpuTemp = await _temperatureService.GetCpuTemperature();
-                    return $"SoC:{Math.Round(cpuTemp, 1)}°C";
+                    return $"T:{Math.Round(cpuTemp, 2)}°C";
                 }
                 catch
                 {
-                    return "SoC: ?";
+                    return "T: ?";
                 }
             });
             values.Add(async () =>
@@ -72,11 +72,11 @@ namespace OrangePi.Display.Status.Service
                 try
                 {
                     var memUsage = await _glancesService.GetMemoryUsage();
-                    return $"MEM:{Math.Round(memUsage.Percent, 1)}%";
+                    return $"RAM:{Math.Round(memUsage.Percent, 1)}%";
                 }
                 catch
                 {
-                    return "MEM: ?";
+                    return "RAM: ?";
                 }
             });
             values.Add(async () => await Task.FromResult($"{DateTime.Now.ToString("hh:mm tt")}"));

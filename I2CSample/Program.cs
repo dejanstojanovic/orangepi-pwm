@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
+bool active=false;
+
 SkiaSharpAdapter.Register();
 
 int screenWidth = 128;
@@ -16,121 +18,74 @@ int screenHeight = 64;
 var font = "DejaVu Sans Bold";
 var fontSize = 12;
 var barHeight = 6;
-var spacing = 3;
+var spacing = 4;
 
-//using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
-//{
-//    using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, screenWidth, screenHeight))
-//    {
-
-//        ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
-//        ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
-
-using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
 {
-    image.Clear(Color.Black);
-    var g = image.GetDrawingApi();
-
-
-
-    int valuesDrawn = 0;
-    var c = g.GetCanvas();
-
-    var values = new List<Func<Task<StatusValue>>>();
-    values.Add(async () =>
+    using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, screenWidth, screenHeight))
     {
-        return await Task.FromResult(new StatusValue("cpu usage 12.3%",12.3));
-    });
-    values.Add(async () =>
-    {
-        return await Task.FromResult(new StatusValue("cpu temp 32.7°C",32.7));
-    });
-    values.Add(async () =>
-    {
-        return await Task.FromResult(new StatusValue("ram usage 45.78%",45.78));
-    });
+
+        ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
+        ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
+
+        using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+        {
+            image.Clear(Color.Black);
+            var g = image.GetDrawingApi();
+
+            int valuesDrawn = 0;
+            var c = g.GetCanvas();
+
+            var values = new List<Func<Task<StatusValue>>>();
+            values.Add(async () =>
+            {
+                return await Task.FromResult(new StatusValue("CPU usage 12.3%", 12.3));
+            });
+            //values.Add(async () =>
+            //{
+            //    return await Task.FromResult(new StatusValue("cpu temp 32.7°C", 32.7));
+            //});
+            //values.Add(async () =>
+            //{
+            //    return await Task.FromResult(new StatusValue("ram usage 45.78%",45.78));
+            //});
 
 
-    foreach(var value in values)
-    {
-        var valueModel = await value();
-        g.DrawText(text: valueModel.Text,
-        fontFamilyName: font,
-        size: fontSize,
-        color: Color.White,
-        position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
+            foreach (var value in values)
+            {
+                var valueModel = await value();
+                g.DrawText(text: valueModel.Text,
+                fontFamilyName: font,
+                size: fontSize,
+                color: Color.White,
+                position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
 
-        valuesDrawn += 1;
-        DrawBar(
-        canvas: c,
-        width: screenWidth,
-        height: barHeight,
-        startY: valuesDrawn * (fontSize + spacing) + (valuesDrawn - 1) * barHeight,
-        value: valueModel.Value);
+                valuesDrawn += 1;
+                DrawBar(
+                canvas: c,
+                width: screenWidth,
+                height: barHeight,
+                startY: valuesDrawn * (fontSize + spacing) + ((valuesDrawn - 1) * barHeight),
+                value: valueModel.Value);
+            }
+
+
+
+            //var path = @"d:\temp\status-display.png";
+            //if (File.Exists(path))
+            //    File.Delete(path);
+            //image.SaveToFile(path, ImageFileType.Png);
+
+
+            ssd1306.DrawBitmap(image);
+
+        }
+
+        Console.ReadKey();
+
+        ssd1306.ClearScreen();
     }
-
-    //#region value 1
-    //g.DrawText(text: "cpu usage 12.3%",
-    //    fontFamilyName: font,
-    //    size: fontSize,
-    //    color: Color.White,
-    //    position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
-
-    //valuesDrawn += 1;
-    //DrawBar(
-    //canvas: c,
-    //width: screenWidth,
-    //height: barHeight,
-    //startY: valuesDrawn * (fontSize + spacing) + (valuesDrawn - 1) * barHeight,
-    //value: 12.786);
-    //#endregion
-
-    //#region value 2
-    //g.DrawText(text: "cpu usage 12.3%",
-    //    fontFamilyName: font,
-    //    size: fontSize,
-    //    color: Color.White,
-    //    position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
-    //valuesDrawn += 1;
-    //DrawBar(
-    //    canvas:c, 
-    //    width: screenWidth, 
-    //    height: barHeight,
-    //    startY: valuesDrawn * (fontSize + spacing) + (valuesDrawn - 1) * barHeight, 
-    //    value:12.786);
-    //#endregion
-
-    //#region value 3
-    //g.DrawText(text: "cpu usage 12.3%",
-    //    fontFamilyName: font,
-    //    size: fontSize,
-    //    color: Color.White,
-    //    position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
-    //valuesDrawn += 1;
-    //DrawBar(
-    //canvas: c,
-    //width: screenWidth,
-    //height: barHeight,
-    //startY: valuesDrawn * (fontSize + spacing) + (valuesDrawn - 1) * barHeight,
-    //value: 12.786);
-    //#endregion
-
-    var path = @"d:\temp\status-display.png";
-    if (File.Exists(path))
-        File.Delete(path);
-    image.SaveToFile(path, ImageFileType.Png);
-
-
-    //ssd1306.DrawBitmap(image);
-
-    //}
-
-    //Console.ReadKey();
-
-    //ssd1306.ClearScreen();
-    //}
 }
-
 
 void DrawBar(SKCanvas canvas, int width, int height, int startY, double value)
 {
@@ -151,4 +106,17 @@ void DrawBar(SKCanvas canvas, int width, int height, int startY, double value)
     {
         Color = SKColor.Parse("FFFFFF"),
     });
+}
+
+void StartMonitorActive()
+{
+    Task.Run(async () =>
+    {
+        while (true)//TODO: Use cancellation token here
+        {
+            active = true;
+            await Task.Delay(TimeSpan.FromMilliseconds(10));
+        }
+    });
+
 }
