@@ -12,11 +12,6 @@ namespace OrangePi.Display.Status.Service.Models
         public int BusId { get; set; }
         public string DeviceAddressHex { get; set; }
         public int Interval { get; set; }
-
-        public string FontName { get; set; }
-        public int FontSize { get; set; }
-        public int OffsetX { get; set; }
-        public int OffsetY { get; set; }
         public bool BlinkOnChange { get; set; }
         public bool Rotate { get; set; }
 
