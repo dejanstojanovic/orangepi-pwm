@@ -45,13 +45,15 @@ using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelForm
         return await Task.FromResult(new StatusValue("CPU usage 12.3%", 12.3));
     });
 
-    //c.DrawCircle(screenHeight / 2, screenHeight / 2, screenHeight / 2, new SKPaint { Color = SKColor.Parse("FFFFFF") });
-    //c.DrawCircle(screenHeight / 2, screenHeight / 2, (screenHeight / 2)-2, new SKPaint { Color = SKColor.Parse("000000") });
-
     c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+    c.DrawArc(new SKRect(1, 1, screenHeight-1, screenHeight-1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
-    //c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight), 0, 270, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
-    //c.DrawArc(new SKRect(0, 0, screenHeight - 5, screenHeight - 5), 0, 270, true, new SKPaint() { Color = SKColor.Parse("000000") });
+    c.DrawArc(new SKRect(3, 3, screenHeight-3, screenHeight-3), 0, 110, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+    c.DrawArc(new SKRect(9, 9, screenHeight - 9, screenHeight - 9), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
+
+
+    c.DrawArc(new SKRect(11, 11, screenHeight - 11, screenHeight - 11), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+    c.DrawArc(new SKRect(12, 12, screenHeight - 12, screenHeight - 12), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
     //foreach (var value in values)
     //{
