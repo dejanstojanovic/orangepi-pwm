@@ -1,6 +1,7 @@
 ﻿using I2CSample;
 using Iot.Device.Graphics;
 using Iot.Device.Graphics.SkiaSharpAdapter;
+using Iot.Device.Mcp25xxx.Register.ErrorDetection;
 using Microsoft.Extensions.Options;
 using OrangePi.Display.Status.Service.Models;
 using SkiaSharp;
@@ -8,6 +9,7 @@ using System.Device.I2c;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using static System.Net.Mime.MediaTypeNames;
 
 bool active = false;
 
@@ -46,14 +48,42 @@ using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelForm
     });
 
     c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
-    c.DrawArc(new SKRect(1, 1, screenHeight-1, screenHeight-1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
+    c.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight - 1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
-    c.DrawArc(new SKRect(3, 3, screenHeight-3, screenHeight-3), 0, 110, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+    c.DrawArc(new SKRect(3, 3, screenHeight - 3, screenHeight - 3), 0, 110, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
     c.DrawArc(new SKRect(9, 9, screenHeight - 9, screenHeight - 9), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
 
     c.DrawArc(new SKRect(11, 11, screenHeight - 11, screenHeight - 11), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
     c.DrawArc(new SKRect(12, 12, screenHeight - 12, screenHeight - 12), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
+
+    var valueText = $"{77.9}°C";
+
+    var paint = new SKPaint
+    {
+        TextSize = fontSize,
+    };
+
+    SKRect sizeRect = new();
+    paint.MeasureText(valueText, ref sizeRect);
+
+    g.DrawText(text: valueText,
+        fontFamilyName: font,
+        size: fontSize,
+        color: Color.White,
+        position: new Point(
+            x: (screenHeight / 2) - ((int)sizeRect.Width / 2),
+            y: (screenHeight / 2) - (fontSize - 2) + 2)
+        );
+
+    g.DrawText(text: "Temp.",
+    fontFamilyName: font ,
+    size: fontSize+ 3,
+    color: Color.White,
+    position: new Point(
+        x: screenHeight + 10,
+        y: (screenHeight / 2) - ((fontSize + 3) - 2) + 2)
+    );
 
     //foreach (var value in values)
     //{
