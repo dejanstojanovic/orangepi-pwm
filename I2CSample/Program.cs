@@ -20,71 +20,73 @@ var fontSize = 12;
 var barHeight = 8;
 var spacing = 6;
 
-using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
+//using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
+//{
+//    using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, screenWidth, screenHeight))
+//    {
+
+//        ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
+//        ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
+
+//        ssd1306.SendCommand(new Ssd1306Command(0x81));
+//        ssd1306.SendCommand(new Ssd1306Command(0x1F));
+
+using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
 {
-    using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, screenWidth, screenHeight))
+    image.Clear(Color.Black);
+    var g = image.GetDrawingApi();
+
+    int valuesDrawn = 0;
+    var c = g.GetCanvas();
+
+    var values = new List<Func<Task<StatusValue>>>();
+    values.Add(async () =>
     {
+        return await Task.FromResult(new StatusValue("CPU usage 12.3%", 12.3));
+    });
 
-        ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
-        ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
+    //c.DrawCircle(screenHeight / 2, screenHeight / 2, screenHeight / 2, new SKPaint { Color = SKColor.Parse("FFFFFF") });
+    //c.DrawCircle(screenHeight / 2, screenHeight / 2, (screenHeight / 2)-2, new SKPaint { Color = SKColor.Parse("000000") });
 
-        using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
-        {
-            image.Clear(Color.Black);
-            var g = image.GetDrawingApi();
+    c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
 
-            int valuesDrawn = 0;
-            var c = g.GetCanvas();
+    //c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight), 0, 270, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+    //c.DrawArc(new SKRect(0, 0, screenHeight - 5, screenHeight - 5), 0, 270, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
-            var values = new List<Func<Task<StatusValue>>>();
-            values.Add(async () =>
-            {
-                return await Task.FromResult(new StatusValue("CPU usage 12.3%", 12.3));
-            });
-            //values.Add(async () =>
-            //{
-            //    return await Task.FromResult(new StatusValue("cpu temp 32.7°C", 32.7));
-            //});
-            //values.Add(async () =>
-            //{
-            //    return await Task.FromResult(new StatusValue("ram usage 45.78%",45.78));
-            //});
+    //foreach (var value in values)
+    //{
+    //    var valueModel = await value();
+    //    g.DrawText(text: valueModel.Text,
+    //    fontFamilyName: font,
+    //    size: fontSize,
+    //    color: Color.White,
+    //    position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
 
-
-            foreach (var value in values)
-            {
-                var valueModel = await value();
-                g.DrawText(text: valueModel.Text,
-                fontFamilyName: font,
-                size: fontSize,
-                color: Color.White,
-                position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
-
-                valuesDrawn += 1;
-                DrawBar(
-                canvas: c,
-                width: screenWidth,
-                height: barHeight,
-                startY: valuesDrawn * (fontSize + spacing) + ((valuesDrawn - 1) * barHeight),
-                value: valueModel.Value);
-            }
+    //    valuesDrawn += 1;
+    //    DrawBar(
+    //    canvas: c,
+    //    width: screenWidth,
+    //    height: barHeight,
+    //    startY: valuesDrawn * (fontSize + spacing) + ((valuesDrawn - 1) * barHeight),
+    //    value: valueModel.Value);
+    //}
 
 
 
-            //var path = @"d:\temp\status-display.png";
-            //if (File.Exists(path))
-            //    File.Delete(path);
-            //image.SaveToFile(path, ImageFileType.Png);
+    var path = @"d:\temp\status-display.png";
+    if (File.Exists(path))
+        File.Delete(path);
+    image.SaveToFile(path, ImageFileType.Png);
 
 
-            ssd1306.DrawBitmap(image);
+    //    ssd1306.DrawBitmap(image);
 
-        }
+    //}
 
-        Console.ReadKey();
+    //Console.ReadKey();
 
-        ssd1306.ClearScreen();
-    }
+    //ssd1306.ClearScreen();
+    //}
 }
 
 void DrawBar(SKCanvas canvas, int width, int height, int startY, double value)
