@@ -25,7 +25,7 @@ var spacing = 6;
 var values = new List<Func<Task<StatusValue>>>();
 values.Add(async () =>
 {
-    var value = 77.9;
+    var value = 36.9;
     return await Task.FromResult(new StatusValue("SOC", value, $"{value}°C"));
 });
 
@@ -43,32 +43,30 @@ using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
             using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
             {
                 image.Clear(Color.Black);
-                var g = image.GetDrawingApi();
+                var graphic = image.GetDrawingApi();
+                var canvas = graphic.GetCanvas();
 
-                int valuesDrawn = 0;
-                var c = g.GetCanvas();
+                //Draw border
+                canvas.DrawArc(new SKRect(0, 0, screenHeight, screenHeight / 2), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+                canvas.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
-                c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight / 2), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
-                c.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
-
+                //Draw value
                 var angle = (int)Math.Round((value.Value / 100) * 360);
+                canvas.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, angle, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
 
-                c.DrawArc(new SKRect(2, 1, screenHeight - 1, screenHeight / 2 - 1), 0, angle, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+                //Draw inner circle
+                canvas.DrawArc(new SKRect(8, 4, screenHeight - 8, (screenHeight / 2) - 4), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+                canvas.DrawArc(new SKRect(10, 5, screenHeight - 10, screenHeight / 2 - 5), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
-
-                c.DrawArc(new SKRect(8, 4, screenHeight - 8, (screenHeight / 2) - 4), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
-                c.DrawArc(new SKRect(10, 5, screenHeight - 10, screenHeight / 2 - 5), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
-
-
-
-                using (var paint = new SKPaint
+                //Draw label
+                using (var labelPaint = new SKPaint
                 {
                     TextSize = fontSize,
                 })
                 {
                     SKRect sizeRect = new();
-                    paint.MeasureText(value.Label, ref sizeRect);
-                    g.DrawText(text: value.Label,
+                    labelPaint.MeasureText(value.Label, ref sizeRect);
+                    graphic.DrawText(text: value.Label,
                         fontFamilyName: font,
                         size: fontSize,
                         color: Color.White,
@@ -78,15 +76,24 @@ using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
                         );
                 }
 
-
-                g.DrawText(text: value.ValueText,
-                fontFamilyName: font,
-                size: fontSize + 5,
-                color: Color.White,
-                position: new Point(
-                    x: screenHeight + 4,
-                    y: (screenHeight / 4) - ((fontSize + 5) - 2)+4)
-                );
+                //Draw value
+                using (var valuePaint = new SKPaint
+                {
+                    TextSize = fontSize + 5,
+                })
+                {
+                    SKRect sizeRect = new();
+                    valuePaint.MeasureText(value.ValueText, ref sizeRect);
+                    graphic.DrawText(text: value.ValueText,
+                        fontFamilyName: font,
+                        size: (int)valuePaint.TextSize,
+                        color: Color.White,
+                        position: new Point(
+                            x: screenHeight + (int)(screenHeight - sizeRect.Width) / 2,
+                            y: (screenHeight / 4) - ((fontSize + 5) - 2) + 3
+                            )
+                        );
+                }
 
 
                 ssd1306.DrawBitmap(image);
