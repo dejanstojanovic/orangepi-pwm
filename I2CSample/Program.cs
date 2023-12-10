@@ -18,108 +18,87 @@ SkiaSharpAdapter.Register();
 int screenWidth = 128;
 int screenHeight = 64;
 var font = "DejaVu Sans Bold";
-var fontSize = 12;
+var fontSize = 10;
 var barHeight = 8;
 var spacing = 6;
 
-//using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
-//{
-//    using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, screenWidth, screenHeight))
-//    {
-
-//        ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
-//        ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
-
-//        ssd1306.SendCommand(new Ssd1306Command(0x81));
-//        ssd1306.SendCommand(new Ssd1306Command(0x1F));
-
-using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+var values = new List<Func<Task<StatusValue>>>();
+values.Add(async () =>
 {
-    image.Clear(Color.Black);
-    var g = image.GetDrawingApi();
+    var value = 77.9;
+    return await Task.FromResult(new StatusValue("SOC", value, $"{value}°C"));
+});
 
-    int valuesDrawn = 0;
-    var c = g.GetCanvas();
-
-    var values = new List<Func<Task<StatusValue>>>();
-    values.Add(async () =>
+using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
+{
+    using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, screenWidth, screenHeight))
     {
-        return await Task.FromResult(new StatusValue("CPU usage 12.3%", 12.3));
-    });
 
-    c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
-    c.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight - 1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
+        ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
+        ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
 
-    c.DrawArc(new SKRect(3, 3, screenHeight - 3, screenHeight - 3), 0, 110, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
-    c.DrawArc(new SKRect(9, 9, screenHeight - 9, screenHeight - 9), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
+        foreach (var valueFunc in values)
+        {
+            var value = await valueFunc();
+            using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+            {
+                image.Clear(Color.Black);
+                var g = image.GetDrawingApi();
+
+                int valuesDrawn = 0;
+                var c = g.GetCanvas();
+
+                c.DrawArc(new SKRect(0, 0, screenHeight, screenHeight / 2), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+                c.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
+
+                var angle = (int)Math.Round((value.Value / 100) * 360);
+
+                c.DrawArc(new SKRect(2, 1, screenHeight - 1, screenHeight / 2 - 1), 0, angle, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
 
 
-    c.DrawArc(new SKRect(11, 11, screenHeight - 11, screenHeight - 11), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
-    c.DrawArc(new SKRect(12, 12, screenHeight - 12, screenHeight - 12), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
-
-    var valueText = $"{77.9}°C";
-
-    var paint = new SKPaint
-    {
-        TextSize = fontSize,
-    };
-
-    SKRect sizeRect = new();
-    paint.MeasureText(valueText, ref sizeRect);
-
-    g.DrawText(text: valueText,
-        fontFamilyName: font,
-        size: fontSize,
-        color: Color.White,
-        position: new Point(
-            x: (screenHeight / 2) - ((int)sizeRect.Width / 2),
-            y: (screenHeight / 2) - (fontSize - 2) + 2)
-        );
-
-    g.DrawText(text: "Temp.",
-    fontFamilyName: font ,
-    size: fontSize+ 3,
-    color: Color.White,
-    position: new Point(
-        x: screenHeight + 10,
-        y: (screenHeight / 2) - ((fontSize + 3) - 2) + 2)
-    );
-
-    //foreach (var value in values)
-    //{
-    //    var valueModel = await value();
-    //    g.DrawText(text: valueModel.Text,
-    //    fontFamilyName: font,
-    //    size: fontSize,
-    //    color: Color.White,
-    //    position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
-
-    //    valuesDrawn += 1;
-    //    DrawBar(
-    //    canvas: c,
-    //    width: screenWidth,
-    //    height: barHeight,
-    //    startY: valuesDrawn * (fontSize + spacing) + ((valuesDrawn - 1) * barHeight),
-    //    value: valueModel.Value);
-    //}
+                c.DrawArc(new SKRect(8, 4, screenHeight - 8, (screenHeight / 2) - 4), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+                c.DrawArc(new SKRect(10, 5, screenHeight - 10, screenHeight / 2 - 5), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
 
 
-    var path = @"d:\temp\status-display.png";
-    if (File.Exists(path))
-        File.Delete(path);
-    image.SaveToFile(path, ImageFileType.Png);
+                using (var paint = new SKPaint
+                {
+                    TextSize = fontSize,
+                })
+                {
+                    SKRect sizeRect = new();
+                    paint.MeasureText(value.Label, ref sizeRect);
+                    g.DrawText(text: value.Label,
+                        fontFamilyName: font,
+                        size: fontSize,
+                        color: Color.White,
+                        position: new Point(
+                            x: (screenHeight / 2) - ((int)sizeRect.Width / 2),
+                            y: (screenHeight / 4) - (fontSize - 2) + 2)
+                        );
+                }
 
 
-    //    ssd1306.DrawBitmap(image);
+                g.DrawText(text: value.ValueText,
+                fontFamilyName: font,
+                size: fontSize + 5,
+                color: Color.White,
+                position: new Point(
+                    x: screenHeight + 4,
+                    y: (screenHeight / 4) - ((fontSize + 5) - 2)+4)
+                );
 
-    //}
 
-    //Console.ReadKey();
+                ssd1306.DrawBitmap(image);
+            }
+        }
 
-    //ssd1306.ClearScreen();
-    //}
+        Console.ReadKey();
+
+        ssd1306.ClearScreen();
+    }
 }
+
 
 void DrawBar(SKCanvas canvas, int width, int height, int startY, double value)
 {

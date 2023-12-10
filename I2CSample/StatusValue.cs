@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace I2CSample
+﻿namespace I2CSample
 {
     internal class StatusValue
     {
-        public StatusValue(string text, double value)
+        public StatusValue(string label,double value,string valueText)
         {
-            Text = text;
+            ValueText = valueText;
             Value = value;
+            Label = label;
         }
-        public string Text { get; set; }
+        public string Label { get; set; }
+        public string ValueText { get; set; }
         public double Value { get; set; }
     }
 }
