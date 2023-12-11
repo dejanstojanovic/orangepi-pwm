@@ -16,8 +16,6 @@ namespace OrangePi.Display.Status.Service
         int screenHeight = 64;
         string fontName = "DejaVu Sans Bold";
         int fontSize = 12;
-        int barHeight = 8;
-        int spacing = 6;
 
         private readonly ILogger<Worker> _logger;
         private readonly ITemperatureService _temperatureService;
@@ -97,6 +95,22 @@ namespace OrangePi.Display.Status.Service
                     valueText: $"{memUsage}%",
                     value: memUsage); 
              
+            });
+            values.Add(async () =>
+            {
+                double fsUsage = 0;
+                try
+                {
+                    var fsUsageModel = await _glancesService.GetFileSystemUsage("/etc/hostname");
+                    fsUsage = Math.Round(fsUsageModel.Percent, 2);
+                }
+                catch { fsUsage = 0; }
+
+                return new StatusValue(
+                    label: $"SSD",
+                    valueText: $"{fsUsage}%",
+                    value: fsUsage);
+
             });
 
             #endregion

@@ -12,5 +12,6 @@ namespace OrangePi.Common.Services
     {
         Task<CpuStats> GetCpuUsage();
         Task<MemStats> GetMemoryUsage();
+        Task<FileSystemStats> GetFileSystemUsage(string mountPoint);
     }
 }

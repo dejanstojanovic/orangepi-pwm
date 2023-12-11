@@ -19,6 +19,16 @@ namespace OrangePi.Common.Services
             return await JsonSerializer.DeserializeAsync<CpuStats>(contentStream);
         }
 
+        public async Task<FileSystemStats> GetFileSystemUsage(string mountPoint)
+        {
+            var httpResponseMessage = await _httpClient.GetAsync("api/3/fs");
+            httpResponseMessage.EnsureSuccessStatusCode();
+            using var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+            var result =  await JsonSerializer.DeserializeAsync<IEnumerable<FileSystemStats>>(contentStream);
+
+            return result.SingleOrDefault(r => r.MntPoint == mountPoint);
+        }
+
         public async Task<MemStats> GetMemoryUsage()
         {
             var httpResponseMessage = await _httpClient.GetAsync("api/3/mem");
