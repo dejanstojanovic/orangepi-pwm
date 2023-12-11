@@ -50,45 +50,53 @@ namespace OrangePi.Display.Status.Service
             #region Add values func
             values.Add(async () =>
             {
+                double cpuTemp = 0;
                 try
                 {
-                    var cpuTemp = await _temperatureService.GetCpuTemperature();
-                    return new StatusValue(
-                        text:$"CPU temp {Math.Round(cpuTemp, 2)}°C", 
-                        value:Math.Round(cpuTemp, 2));
+                    cpuTemp = await _temperatureService.GetCpuTemperature();
+                    cpuTemp = Math.Round(cpuTemp, 1);
                 }
                 catch
                 {
-                    return null;
+                    cpuTemp = 0;
                 }
+
+                    return new StatusValue(
+                        label:"CPU",
+                        valueText:$"{cpuTemp}°C", 
+                        value:cpuTemp);
+                
             });
             values.Add(async () =>
             {
+                double cpuUsage = 0;
                 try
                 {
-                    var cpuUsage = await _glancesService.GetCpuUsage();
-                    return new StatusValue(
-                        text:$"CPU usage {Math.Round(cpuUsage.Total, 2)}%",
-                        value: Math.Round(cpuUsage.Total, 2));
+                    var cpuUsageModel = await _glancesService.GetCpuUsage();
+                    cpuUsage = Math.Round(cpuUsageModel.Total, 2);
                 }
-                catch
-                {
-                    return null;
-                }
+                catch { cpuUsage = 0; }
+                return new StatusValue(
+                    label: "CPU",
+                    valueText: $"{cpuUsage}%",
+                    value: cpuUsage);
+                
             });
             values.Add(async () =>
             {
+                double memUsage = 0;
                 try
                 {
-                    var memUsage = await _glancesService.GetMemoryUsage();
-                    return new StatusValue(
-                        text:$"RAM usage {Math.Round(memUsage.Percent, 2)}%",
-                        value:Math.Round(memUsage.Percent, 2));
+                    var memUsageModel = await _glancesService.GetMemoryUsage();
+                    memUsage = Math.Round(memUsageModel.Percent, 2);
                 }
-                catch
-                {
-                    return null;
-                }
+                catch { memUsage = 0; }
+
+                return new StatusValue(
+                    label: $"RAM",
+                    valueText: $"{memUsage}%",
+                    value: memUsage); 
+             
             });
 
             #endregion
@@ -107,50 +115,78 @@ namespace OrangePi.Display.Status.Service
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
-                        foreach (var value in values)
+                        foreach (var valueFunc in values)
                         {
                             if (stoppingToken.IsCancellationRequested)
                                 break;
 
                             await Task.Delay(pause);
 
+                            var value = await valueFunc();
+
                             if (_serviceConfiguration.BlinkOnChange)
                             {
                                 ssd1306.ClearScreen();
                                 await Task.Delay(TimeSpan.FromMilliseconds(200));
                             }
-
                             using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
                             {
                                 image.Clear(Color.Black);
-                                var g = image.GetDrawingApi();
+                                var graphic = image.GetDrawingApi();
+                                var canvas = graphic.GetCanvas();
 
-                                int valuesDrawn = 0;
-                                var c = g.GetCanvas();
+                                //Draw border
+                                canvas.DrawArc(new SKRect(0, 0, screenHeight, screenHeight / 2), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+                                canvas.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
-                                var valueModel = await value();
-                                if (valueModel != null)
+                                //Draw value
+                                var angle = (int)Math.Round((value.Value / 100) * 360);
+                                canvas.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, angle, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+
+                                //Draw inner circle
+                                canvas.DrawArc(new SKRect(8, 4, screenHeight - 8, (screenHeight / 2) - 4), 0, 360, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
+                                canvas.DrawArc(new SKRect(10, 5, screenHeight - 10, screenHeight / 2 - 5), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
+
+                                //Draw label
+                                using (var labelPaint = new SKPaint
                                 {
-                                    g.DrawText(text: valueModel.Text,
-                                    fontFamilyName: fontName,
-                                    size: fontSize,
-                                    color: Color.White,
-                                    position: new Point(0, valuesDrawn * (fontSize + spacing + barHeight)));
-
-                                    valuesDrawn += 1;
-                                    DrawBar(
-                                    canvas: c,
-                                    width: screenWidth,
-                                    height: barHeight,
-                                    startY: valuesDrawn * (fontSize + spacing) + ((valuesDrawn - 1) * barHeight),
-                                    value: valueModel.Value);
-
+                                    TextSize = fontSize,
+                                })
+                                {
+                                    SKRect sizeRect = new();
+                                    labelPaint.MeasureText(value.Label, ref sizeRect);
+                                    graphic.DrawText(text: value.Label,
+                                        fontFamilyName: fontName,
+                                        size: fontSize,
+                                        color: Color.White,
+                                        position: new Point(
+                                            x: (screenHeight / 2) - ((int)sizeRect.Width / 2),
+                                            y: (screenHeight / 4) - (fontSize - 2) + 2)
+                                        );
                                 }
+
+                                //Draw value
+                                using (var valuePaint = new SKPaint
+                                {
+                                    TextSize = fontSize + 5,
+                                })
+                                {
+                                    SKRect sizeRect = new();
+                                    valuePaint.MeasureText(value.ValueText, ref sizeRect);
+                                    graphic.DrawText(text: value.ValueText,
+                                        fontFamilyName: fontName,
+                                        size: (int)valuePaint.TextSize,
+                                        color: Color.White,
+                                        position: new Point(
+                                            x: screenHeight + (int)(screenHeight - sizeRect.Width) / 2,
+                                            y: (screenHeight / 4) - ((fontSize + 5) - 2) + 3
+                                            )
+                                        );
+                                }
+
 
                                 ssd1306.DrawBitmap(image);
                             }
-
-
                         }
                     }
                     ssd1306.ClearScreen();
@@ -158,26 +194,7 @@ namespace OrangePi.Display.Status.Service
             }
         }
 
-        void DrawBar(SKCanvas canvas, int width, int height, int startY, double value)
-        {
-            canvas.DrawRect(1, startY, width - 1, height, new SKPaint()
-            {
-                Color = SKColor.Parse("FFFFFF"),
-            });
-            canvas.DrawRect(2, startY + 1, width - 3, height - 2, new SKPaint()
-            {
-                Color = SKColor.Parse("000000"),
-            });
-
-            //TODO: calculate value here
-            var maxWidth = width - 4;
-            var valueWidth = (int)Math.Round((value / maxWidth) * 100);
-
-            canvas.DrawRect(3, startY + 2, valueWidth, height - 4, new SKPaint()
-            {
-                Color = SKColor.Parse("FFFFFF"),
-            });
-        }
+       
 
 
     }
