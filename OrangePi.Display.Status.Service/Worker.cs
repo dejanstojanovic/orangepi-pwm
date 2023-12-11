@@ -5,7 +5,6 @@ using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.Models;
 using SkiaSharp;
 using System.Device.I2c;
-using System.Diagnostics;
 using System.Drawing;
 
 namespace OrangePi.Display.Status.Service

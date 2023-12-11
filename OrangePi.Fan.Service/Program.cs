@@ -1,6 +1,5 @@
-using Iot.Device.CpuTemperature;
 using OrangePi.Common.Extensions;
-using OrangePi.Common.Services;
+using OrangePi.Common.Models;
 using OrangePi.Fan.Service;
 using OrangePi.Fan.Service.Models;
 
@@ -19,9 +18,12 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
         services.AddHostedService<Worker>();
 
+        var buzzerConfig = new BuzzerConfig();
+        hostContext.Configuration.Bind(nameof(buzzerConfig), buzzerConfig);
+
         services.AddProcessRunner()
                 .AddTemperatureCheck()
-                .AddBuzzer(138, 1000400, 0.9);
+                .AddBuzzer(buzzerConfig);
         
     })
     .ConfigureLogging(logging =>

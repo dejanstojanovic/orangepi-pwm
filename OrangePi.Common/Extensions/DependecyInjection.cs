@@ -1,16 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using OrangePi.Common.Models;
 using OrangePi.Common.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrangePi.Common.Extensions
 {
     public static class DependecyInjection
     {
+        public static IServiceCollection AddBuzzer(this IServiceCollection services, BuzzerConfig config)
+        {
+            services.AddSingleton<IBuzzerService>(new BuzzerService(config));
+            return services;
+        }
+
         public static IServiceCollection AddBuzzer(this IServiceCollection services, int gpio, int pwmFrequency, double pwmDuty)
         {
             services.AddSingleton<IBuzzerService>(new BuzzerService(gpio, pwmFrequency, pwmDuty));
