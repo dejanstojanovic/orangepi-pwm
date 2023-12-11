@@ -26,7 +26,7 @@ var values = new List<Func<Task<StatusValue>>>();
 values.Add(async () =>
 {
     var value = 36.9;
-    return await Task.FromResult(new StatusValue("SOC", value, $"{value}°C"));
+    return await Task.FromResult(new StatusValue("SSD", value, $"{value}%", "45.9GB"));
 });
 
 using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
@@ -82,17 +82,38 @@ using (var device = I2cDevice.Create(new I2cConnectionSettings(5, 0x3c)))
                     TextSize = fontSize + 5,
                 })
                 {
-                    SKRect sizeRect = new();
-                    valuePaint.MeasureText(value.ValueText, ref sizeRect);
+                    SKRect valueSizeRect = new();
+                    valuePaint.MeasureText(value.ValueText, ref valueSizeRect);
                     graphic.DrawText(text: value.ValueText,
                         fontFamilyName: font,
                         size: (int)valuePaint.TextSize,
                         color: Color.White,
                         position: new Point(
-                            x: screenHeight + (int)(screenHeight - sizeRect.Width) / 2,
+                            x: screenHeight + (int)(screenHeight - valueSizeRect.Width),
                             y: (screenHeight / 4) - ((fontSize + 5) - 2) + 3
                             )
                         );
+                    //Draw note
+                    if (!string.IsNullOrWhiteSpace(value.Note))
+                    {
+                        using (var notePaint = new SKPaint
+                        {
+                            TextSize = fontSize - 2,
+                        })
+                        {
+                            SKRect noteSizeRect = new();
+                            valuePaint.MeasureText(value.ValueText, ref noteSizeRect);
+                            graphic.DrawText(text: value.Note,
+                                fontFamilyName: font,
+                                size: 10,
+                                color: Color.White,
+                                position: new Point(
+                                    x: (screenHeight + (int)(screenHeight - noteSizeRect.Width)),
+                                    y: (screenHeight / 2) - fontSize
+                                    )
+                        );
+                        }
+                    }
                 }
 
 

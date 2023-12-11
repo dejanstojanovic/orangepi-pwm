@@ -19,13 +19,13 @@ namespace OrangePi.Common.Models
         public string MntPoint { get; set; }
 
         [JsonPropertyName("size")]
-        public object Size { get; set; }
+        public long Size { get; set; }
 
         [JsonPropertyName("used")]
-        public object Used { get; set; }
+        public long Used { get; set; }
 
         [JsonPropertyName("free")]
-        public object Free { get; set; }
+        public long Free { get; set; }
 
         [JsonPropertyName("percent")]
         public double Percent { get; set; }

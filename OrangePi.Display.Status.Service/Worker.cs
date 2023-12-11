@@ -59,11 +59,11 @@ namespace OrangePi.Display.Status.Service
                     cpuTemp = 0;
                 }
 
-                    return new StatusValue(
-                        label:"CPU",
-                        valueText:$"{cpuTemp}°C", 
-                        value:cpuTemp);
-                
+                return new StatusValue(
+                    label: "CPU",
+                    valueText: $"{cpuTemp}°C",
+                    value: cpuTemp);
+
             });
             values.Add(async () =>
             {
@@ -78,39 +78,41 @@ namespace OrangePi.Display.Status.Service
                     label: "CPU",
                     valueText: $"{cpuUsage}%",
                     value: cpuUsage);
-                
+
             });
             values.Add(async () =>
             {
                 double memUsage = 0;
+                string? usedGbText = null;
                 try
                 {
                     var memUsageModel = await _glancesService.GetMemoryUsage();
                     memUsage = Math.Round(memUsageModel.Percent, 2);
+                    usedGbText = $"{Math.Round((memUsageModel.Used * 1.00) / 1000000000, 2)}GB";
                 }
                 catch { memUsage = 0; }
-
                 return new StatusValue(
                     label: $"RAM",
                     valueText: $"{memUsage}%",
-                    value: memUsage); 
-             
+                    value: memUsage,
+                    note: usedGbText);
             });
             values.Add(async () =>
             {
                 double fsUsage = 0;
+                string? usedGbText = null;
                 try
                 {
                     var fsUsageModel = await _glancesService.GetFileSystemUsage("/etc/hostname");
                     fsUsage = Math.Round(fsUsageModel.Percent, 2);
+                    usedGbText = $"{Math.Round((fsUsageModel.Used * 1.00) / 1000000000, 2)}GB";
                 }
                 catch { fsUsage = 0; }
-
                 return new StatusValue(
                     label: $"SSD",
                     valueText: $"{fsUsage}%",
-                    value: fsUsage);
-
+                    value: fsUsage,
+                    note: usedGbText);
             });
 
             #endregion
@@ -185,18 +187,38 @@ namespace OrangePi.Display.Status.Service
                                     TextSize = fontSize + 5,
                                 })
                                 {
-                                    SKRect sizeRect = new();
-                                    valuePaint.MeasureText(value.ValueText, ref sizeRect);
+                                    SKRect valueSizeRect = new();
+                                    valuePaint.MeasureText(value.ValueText, ref valueSizeRect);
                                     graphic.DrawText(text: value.ValueText,
                                         fontFamilyName: fontName,
                                         size: (int)valuePaint.TextSize,
                                         color: Color.White,
                                         position: new Point(
-                                            x: screenHeight + (int)(screenHeight - sizeRect.Width) / 2,
-                                            y: (screenHeight / 4) - ((fontSize + 5) - 2) + 3
-                                            )
+                                            x: (screenHeight + (int)(screenHeight - valueSizeRect.Width)) - 3,
+                                            y: (screenHeight / 4) - ((fontSize + 5) - 2) + 3)
                                         );
+                                    //Draw note
+                                    if (!string.IsNullOrWhiteSpace(value.Note))
+                                    {
+                                        using (var notePaint = new SKPaint
+                                        {
+                                            TextSize = fontSize - 2,
+                                        })
+                                        {
+                                            SKRect noteSizeRect = new();
+                                            valuePaint.MeasureText(value.ValueText, ref noteSizeRect);
+                                            graphic.DrawText(text: value.Note,
+                                                fontFamilyName: fontName,
+                                                size: 10,
+                                                color: Color.White,
+                                                position: new Point(
+                                                    x: (screenHeight + (int)(screenHeight - noteSizeRect.Width)),
+                                                    y: (screenHeight / 2) - fontSize)
+                                        );
+                                        }
+                                    }
                                 }
+
 
 
                                 ssd1306.DrawBitmap(image);
@@ -208,7 +230,7 @@ namespace OrangePi.Display.Status.Service
             }
         }
 
-       
+
 
 
     }

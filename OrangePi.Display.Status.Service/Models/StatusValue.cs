@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OrangePi.Display.Status.Service.Models
+﻿namespace OrangePi.Display.Status.Service.Models
 {
     internal class StatusValue
     {
@@ -14,8 +8,14 @@ namespace OrangePi.Display.Status.Service.Models
             Value = value;
             Label = label;
         }
+
+        public StatusValue(string label, double value, string valueText, string? note) : this(label, value, valueText)
+        {
+            this.Note = note;
+        }
         public string Label { get; set; }
         public string ValueText { get; set; }
         public double Value { get; set; }
+        public string? Note { get; set; }
     }
 }
