@@ -205,11 +205,11 @@ namespace OrangePi.Display.Status.Service
                                     {
                                         using (var notePaint = new SKPaint
                                         {
-                                            TextSize = fontSize - 2,
+                                            TextSize = 10,
                                         })
                                         {
                                             SKRect noteSizeRect = new();
-                                            valuePaint.MeasureText(value.ValueText, ref noteSizeRect);
+                                            notePaint.MeasureText(value.ValueText, ref noteSizeRect);
                                             graphic.DrawText(text: value.Note,
                                                 fontFamilyName: fontName,
                                                 size: 10,
