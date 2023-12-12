@@ -49,9 +49,11 @@ namespace OrangePi.Display.Status.Service
             values.Add(async () =>
             {
                 double cpuTemp = 0;
+                double cpuTempF = 0;
                 try
                 {
                     cpuTemp = await _temperatureService.GetCpuTemperature();
+                    cpuTempF = Math.Round(((cpuTemp * 9) / 5) + 32);
                     cpuTemp = Math.Round(cpuTemp, 1);
                 }
                 catch
@@ -62,7 +64,8 @@ namespace OrangePi.Display.Status.Service
                 return new StatusValue(
                     label: "CPU",
                     valueText: $"{cpuTemp}°C",
-                    value: cpuTemp);
+                    value: cpuTemp,
+                    note: $"{cpuTempF}°F");
 
             });
             values.Add(async () =>
@@ -156,7 +159,7 @@ namespace OrangePi.Display.Status.Service
                                 canvas.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, 360, true, new SKPaint() { Color = SKColor.Parse("000000") });
 
                                 //Draw value
-                                var angle = (int)Math.Round((value.Value / 100) * 360);
+                                var angle = (int)Math.Round(((value.Value < 100 ? value.Value : 100) / 100) * 360);
                                 canvas.DrawArc(new SKRect(1, 1, screenHeight - 1, screenHeight / 2 - 1), 0, angle, true, new SKPaint() { Color = SKColor.Parse("FFFFFF") });
 
                                 //Draw inner circle
