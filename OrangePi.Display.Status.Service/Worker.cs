@@ -209,7 +209,7 @@ namespace OrangePi.Display.Status.Service
                                         })
                                         {
                                             SKRect noteSizeRect = new();
-                                            notePaint.MeasureText(value.ValueText, ref noteSizeRect);
+                                            notePaint.MeasureText(value.Note, ref noteSizeRect);
                                             graphic.DrawText(text: value.Note,
                                                 fontFamilyName: fontName,
                                                 size: 10,
