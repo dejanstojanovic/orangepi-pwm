@@ -31,7 +31,10 @@ namespace OrangePi.Fan.Service
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (_serviceConfigMonitor.CurrentValue.StartSound.Enabled)
-                await _buzzer.Play(330, TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval)).ConfigureAwait(false);
+                await _buzzer.Play(
+                    frequency: 330, 
+                    lenght: TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval))
+                    .ConfigureAwait(false);
 
             double previousValue = 0;
             await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.WiringPi.ToString(), "pwm");
@@ -88,7 +91,10 @@ namespace OrangePi.Fan.Service
             }
 
             if(_serviceConfigMonitor.CurrentValue.ExitSound.Enabled)
-                await _buzzer.Play(330,TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.ExitSound.Interval)).ConfigureAwait(false);
+                await _buzzer.Play(
+                    frequency: 330,
+                    lenght: TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval))
+                    .ConfigureAwait(false);
 
             await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.WiringPi.ToString(), _serviceConfigMonitor.CurrentValue.ValueToSetOnExit.ToString());
         }
