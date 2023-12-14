@@ -1,15 +1,21 @@
-﻿using System.Device.Pwm;
+﻿using OrangePi.Common.Models;
+using System.Device.Pwm;
 using System.Device.Pwm.Drivers;
 
 namespace OrangePi.Common.Services
 {
     public class BuzzerService : IBuzzerService
     {
-
-        public BuzzerService(int gpio,int pwmFrequency, double pwmDuty)
+        public BuzzerService(BuzzerConfig config)
+        {
+            GPIO = config.GPIO;
+            PWMFrequency = config.PWMFrequency;
+            PWMDuty = config.PWMDuty;
+        }
+        public BuzzerService(int gpio, int pwmFrequency, double pwmDuty)
         {
             GPIO = gpio;
-            PWMFrequency= pwmFrequency;
+            PWMFrequency = pwmFrequency;
             PWMDuty = pwmDuty;
         }
         public int GPIO { get; init; }
