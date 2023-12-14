@@ -13,7 +13,7 @@ namespace OrangePi.Display.Status.Service
     public class Worker : BackgroundService
     {
         #region Switch mechanism
-        bool _switch = false;
+        bool _switch = true;
         readonly object _lock = new Object();
         public bool Switch
         {
@@ -29,6 +29,11 @@ namespace OrangePi.Display.Status.Service
                 lock (_lock)
                 {
                     _switch = value;
+                    if (value)
+                    {
+                        _timer.Stop();
+                        _timer.Start();
+                    }
                 }
             }
         }
@@ -45,6 +50,8 @@ namespace OrangePi.Display.Status.Service
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SwitchConfig _switchConfig;
         private readonly IGlancesService _glancesService;
+        readonly System.Timers.Timer _timer;
+
         public Worker(
             ILogger<Worker> logger,
             ITemperatureService temperatureService,
@@ -60,23 +67,32 @@ namespace OrangePi.Display.Status.Service
             _serviceConfiguration = serviceConfiguration.Value;
             _glancesService = glancesService;
             _switchConfig = switchConfig.Value;
+
+            _timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
+            _timer.Elapsed += timer_Elapsed;
             SkiaSharpAdapter.Register();
+            _timer.Start();
         }
 
-        async Task MonitorSwitch(CancellationToken stoppingToken)
+        private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            Switch = false;
+        }
+
+        void MonitorSwitch(CancellationToken stoppingToken)
         {
             using (var controller = new GpioController())
             {
-                var pin = controller.OpenPin(92, PinMode.Input);
+                var pin = controller.OpenPin(_switchConfig.GPIO, PinMode.Input);
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     var value = pin.Read();
                     if (value == PinValue.High)
                     {
-                        this.Switch = true; 
+                        this.Switch = true;
                     }
 
-                    await Task.Delay(_switchConfig.IntervalTimeSpan);
+                    Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
                 }
             }
         }
@@ -84,8 +100,9 @@ namespace OrangePi.Display.Status.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var pause = _serviceConfiguration.IntervalTimeSpan;
+            var switchMonitor = Task.Run(() => MonitorSwitch(stoppingToken));
 
+            var pause = _serviceConfiguration.IntervalTimeSpan;
             var values = new List<Func<Task<StatusValue>>>();
 
             #region Add values func
@@ -177,6 +194,15 @@ namespace OrangePi.Display.Status.Service
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
+                        if (!Switch)
+                        {
+                            await Task.Delay(TimeSpan.FromMilliseconds(100));
+                            ssd1306.EnableDisplay(false);
+                            continue;
+                        }
+
+                        ssd1306.EnableDisplay(true);
+
                         foreach (var valueFunc in values)
                         {
                             if (stoppingToken.IsCancellationRequested)
@@ -258,9 +284,6 @@ namespace OrangePi.Display.Status.Service
                                         }
                                     }
                                 }
-
-
-
                                 ssd1306.DrawBitmap(image);
                             }
                         }
@@ -268,10 +291,9 @@ namespace OrangePi.Display.Status.Service
                     ssd1306.ClearScreen();
                 }
             }
+
+            await switchMonitor.WaitAsync(stoppingToken);
         }
-
-
-
 
     }
 }

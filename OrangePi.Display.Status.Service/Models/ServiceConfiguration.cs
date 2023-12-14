@@ -13,6 +13,15 @@ namespace OrangePi.Display.Status.Service.Models
         public string DeviceAddressHex { get; set; }
         public int Interval { get; set; }
         public bool Rotate { get; set; }
+        public int TimeOn { get; set; }
+
+        public TimeSpan TimeOnTimeSpan
+        {
+            get
+            {
+                return TimeSpan.FromSeconds(TimeOn);
+            }
+        }
 
         public TimeSpan IntervalTimeSpan
         {
