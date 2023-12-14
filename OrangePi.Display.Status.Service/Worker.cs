@@ -4,14 +4,36 @@ using Microsoft.Extensions.Options;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.Models;
 using SkiaSharp;
+using System.Device.Gpio;
 using System.Device.I2c;
 using System.Drawing;
 
 namespace OrangePi.Display.Status.Service
 {
-
     public class Worker : BackgroundService
     {
+        #region Switch mechanism
+        bool _switch = false;
+        readonly object _lock = new Object();
+        public bool Switch
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _switch;
+                }
+            }
+            set
+            {
+                lock (_lock)
+                {
+                    _switch = value;
+                }
+            }
+        }
+        #endregion
+
         int screenWidth = 128;
         int screenHeight = 64;
         string fontName = "DejaVu Sans Bold";
@@ -21,12 +43,14 @@ namespace OrangePi.Display.Status.Service
         private readonly ITemperatureService _temperatureService;
         private readonly IProcessRunner _processRunner;
         private readonly ServiceConfiguration _serviceConfiguration;
+        private readonly SwitchConfig _switchConfig;
         private readonly IGlancesService _glancesService;
         public Worker(
             ILogger<Worker> logger,
             ITemperatureService temperatureService,
             IProcessRunner processRunner,
             IOptions<ServiceConfiguration> serviceConfiguration,
+            IOptions<SwitchConfig> switchConfig,
             IGlancesService glancesService
             )
         {
@@ -35,7 +59,26 @@ namespace OrangePi.Display.Status.Service
             _processRunner = processRunner;
             _serviceConfiguration = serviceConfiguration.Value;
             _glancesService = glancesService;
+            _switchConfig = switchConfig.Value;
             SkiaSharpAdapter.Register();
+        }
+
+        async Task MonitorSwitch(CancellationToken stoppingToken)
+        {
+            using (var controller = new GpioController())
+            {
+                var pin = controller.OpenPin(92, PinMode.Input);
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    var value = pin.Read();
+                    if (value == PinValue.High)
+                    {
+                        this.Switch = true; 
+                    }
+
+                    await Task.Delay(_switchConfig.IntervalTimeSpan);
+                }
+            }
         }
 
 
@@ -140,14 +183,8 @@ namespace OrangePi.Display.Status.Service
                                 break;
 
                             await Task.Delay(pause);
-
                             var value = await valueFunc();
 
-                            if (_serviceConfiguration.BlinkOnChange)
-                            {
-                                ssd1306.ClearScreen();
-                                await Task.Delay(TimeSpan.FromMilliseconds(200));
-                            }
                             using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
                             {
                                 image.Clear(Color.Black);

@@ -19,6 +19,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddOptions();
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
+        services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
         services.AddHostedService<Worker>();
         services.AddSingleton<IProcessRunner, ProcessRunner>();
         services.AddSingleton<ITemperatureService, TemperatureService>();

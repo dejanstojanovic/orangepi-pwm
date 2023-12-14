@@ -12,7 +12,6 @@ namespace OrangePi.Display.Status.Service.Models
         public int BusId { get; set; }
         public string DeviceAddressHex { get; set; }
         public int Interval { get; set; }
-        public bool BlinkOnChange { get; set; }
         public bool Rotate { get; set; }
 
         public TimeSpan IntervalTimeSpan
