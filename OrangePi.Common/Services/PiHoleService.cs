@@ -23,7 +23,7 @@ namespace OrangePi.Common.Services
 
         public async Task<PiHoleSummaryModel> GetSummary()
         {
-            var httpResponseMessage = await _httpClient.GetAsync("admin.php/api"
+            var httpResponseMessage = await _httpClient.GetAsync("admin/api.php"
                                                         .AppendQueryParam(name:"auth", value: _config.Key)
                                                         .AppendQueryParam(name: "summaryRaw"));
             httpResponseMessage.EnsureSuccessStatusCode();
