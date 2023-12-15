@@ -50,6 +50,7 @@ namespace OrangePi.Display.Status.Service
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SwitchConfig _switchConfig;
         private readonly IGlancesService _glancesService;
+        private readonly IPiHoleService _piHoleService;
         readonly System.Timers.Timer _timer;
 
         public Worker(
@@ -58,7 +59,8 @@ namespace OrangePi.Display.Status.Service
             IProcessRunner processRunner,
             IOptions<ServiceConfiguration> serviceConfiguration,
             IOptions<SwitchConfig> switchConfig,
-            IGlancesService glancesService
+            IGlancesService glancesService,
+            IPiHoleService piHoleService
             )
         {
             _logger = logger;
@@ -67,6 +69,7 @@ namespace OrangePi.Display.Status.Service
             _serviceConfiguration = serviceConfiguration.Value;
             _glancesService = glancesService;
             _switchConfig = switchConfig.Value;
+            _piHoleService = piHoleService;
 
             _timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
             _timer.Elapsed += timer_Elapsed;
@@ -177,7 +180,23 @@ namespace OrangePi.Display.Status.Service
                     value: fsUsage,
                     note: usedGbText);
             });
-
+            values.Add(async () =>
+            {
+                double blockedPct = 0;
+                string? blockedCountText = null;
+                try
+                {
+                    var piHoleSummary = await _piHoleService.GetSummary();
+                    blockedPct = Math.Round(piHoleSummary.AdsPercentageToday, 2);
+                    blockedCountText = piHoleSummary.AdsBlockedToday.ToString();
+                }
+                catch { blockedPct = 0; }
+                return new StatusValue(
+                    label: $"piH",
+                    valueText: $"{blockedPct}%",
+                    value: blockedPct,
+                    note: blockedCountText);
+            });
             #endregion
 
 
