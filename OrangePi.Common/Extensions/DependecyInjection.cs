@@ -50,9 +50,6 @@ namespace OrangePi.Common.Extensions
 
         public static IServiceCollection AddPiHole(this IServiceCollection services, PiHoleConfig piHoleConfig)
         {
-            ServicePointManager.ServerCertificateValidationCallback +=
-                (sender, cert, chain, sslPolicyErrors) => { return true; };
-
             services.AddSingleton<IPiHoleService, PiHoleService>();
             services.Configure<PiHoleConfig>(o =>
             {
@@ -63,6 +60,17 @@ namespace OrangePi.Common.Extensions
             services.AddHttpClient<IPiHoleService, PiHoleService>(c =>
             {
                 c.BaseAddress = piHoleConfig.Url;
+            }).ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                var handler = new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                    ServerCertificateCustomValidationCallback = (sender, certificate, chain, errors) =>
+                    {
+                        return true;
+                    }
+                };
+                return handler;
             });
             return services;
         }
