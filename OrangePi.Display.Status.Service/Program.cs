@@ -26,7 +26,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddGlancesService("http://192.168.1.25:61208/");
         services.AddPiHole(new OrangePi.Common.Models.PiHoleConfig
         {
-            Url = new Uri("http://192.168.1.26/"),
+            Url = new Uri("https://pihole.myhomeserver.local/"),
             Key = "39a2885f0dea20dc57854225bce0a571bd2a7cd6c6d2f97873be6fb1261fd914"
         });
     })

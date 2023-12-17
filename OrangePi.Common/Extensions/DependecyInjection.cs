@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using OrangePi.Common.Models;
 using OrangePi.Common.Services;
+using System.Net;
 
 namespace OrangePi.Common.Extensions
 {
@@ -49,6 +50,9 @@ namespace OrangePi.Common.Extensions
 
         public static IServiceCollection AddPiHole(this IServiceCollection services, PiHoleConfig piHoleConfig)
         {
+            ServicePointManager.ServerCertificateValidationCallback +=
+                (sender, cert, chain, sslPolicyErrors) => { return true; };
+
             services.AddSingleton<IPiHoleService, PiHoleService>();
             services.Configure<PiHoleConfig>(o =>
             {
