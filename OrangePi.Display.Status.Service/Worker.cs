@@ -187,7 +187,7 @@ namespace OrangePi.Display.Status.Service
                 try
                 {
                     var piHoleSummary = await _piHoleService.GetSummary();
-                    blockedPct = Math.Round(piHoleSummary.AdsPercentageToday, 2);
+                    blockedPct = Math.Round(piHoleSummary.AdsPercentageToday, 1);
                     blockedCountText = piHoleSummary.AdsBlockedToday.ToString();
                 }
                 catch { blockedPct = 0; throw; }
