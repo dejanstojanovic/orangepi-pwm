@@ -111,24 +111,6 @@ namespace OrangePi.Display.Status.Service
             #region Add values func
             values.Add(async () =>
             {
-                double blockedPct = 0;
-                string? blockedCountText = null;
-                try
-                {
-                    var piHoleSummary = await _piHoleService.GetSummary();
-                    blockedPct = Math.Round(piHoleSummary.AdsPercentageToday, 2);
-                    blockedCountText = piHoleSummary.AdsBlockedToday.ToString();
-                }
-                catch { blockedPct = 0; throw; }
-                return new StatusValue(
-                    label: $"PiH",
-                    valueText: $"{blockedPct}%",
-                    value: blockedPct,
-                    note: blockedCountText);
-            });
-
-            values.Add(async () =>
-            {
                 double cpuTemp = 0;
                 double cpuTempF = 0;
                 try
@@ -198,7 +180,23 @@ namespace OrangePi.Display.Status.Service
                     value: fsUsage,
                     note: usedGbText);
             });
-
+            values.Add(async () =>
+            {
+                double blockedPct = 0;
+                string? blockedCountText = null;
+                try
+                {
+                    var piHoleSummary = await _piHoleService.GetSummary();
+                    blockedPct = Math.Round(piHoleSummary.AdsPercentageToday, 2);
+                    blockedCountText = piHoleSummary.AdsBlockedToday.ToString();
+                }
+                catch { blockedPct = 0; throw; }
+                return new StatusValue(
+                    label: $"PiH",
+                    valueText: $"{blockedPct}%",
+                    value: blockedPct,
+                    note: blockedCountText);
+            });
             #endregion
 
 
