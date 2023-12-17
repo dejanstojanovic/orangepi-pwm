@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OrangePi.Common.Models;
 using OrangePi.Common.Services;
+using System.Net;
 
 namespace OrangePi.Common.Extensions
 {
@@ -44,6 +46,33 @@ namespace OrangePi.Common.Extensions
         public static IServiceCollection AddGlancesService(this IServiceCollection services, string apiUrl)
         {
             return services.AddGlancesService(new Uri(apiUrl));
+        }
+
+        public static IServiceCollection AddPiHole(this IServiceCollection services, PiHoleConfig piHoleConfig)
+        {
+            ServicePointManager.ServerCertificateValidationCallback +=
+                (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+            services.AddSingleton<IPiHoleService, PiHoleService>();
+            services.Configure<PiHoleConfig>(o =>
+            {
+                o.Url = piHoleConfig.Url;
+                o.Key = piHoleConfig.Key;
+            });
+
+            services.AddHttpClient<IPiHoleService, PiHoleService>(c =>
+            {
+                c.BaseAddress = piHoleConfig.Url;
+            });
+            return services;
+        }
+        public static IServiceCollection AddPiHole(this IServiceCollection services, ConfigurationSection configSection)
+        {
+            var config = new PiHoleConfig();
+            configSection.Bind(config);
+            services.AddPiHole(config);
+
+            return services;
         }
     }
 }
