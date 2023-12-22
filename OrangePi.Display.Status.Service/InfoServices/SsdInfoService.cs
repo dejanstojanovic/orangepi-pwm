@@ -26,7 +26,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             {
                 var fsUsageModel = await _glancesService.GetFileSystemUsage("/etc/hostname");
                 fsUsage = Math.Round(fsUsageModel.Percent, 2);
-                usedGbText = $"{Math.Round((fsUsageModel.Used * 1.00) / 1000000000, 2)}GB";
+                usedGbText = $"{Math.Round((fsUsageModel.Used * 1.00) / 1000000000, 2)} GB";
             }
             catch { fsUsage = 0; }
             return new StatusValue(

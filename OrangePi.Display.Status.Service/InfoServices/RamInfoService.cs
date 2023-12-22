@@ -26,7 +26,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             {
                 var memUsageModel = await _glancesService.GetMemoryUsage();
                 memUsage = Math.Round(memUsageModel.Percent, 2);
-                usedGbText = $"{Math.Round((memUsageModel.Used * 1.00) / 1000000000, 2)}GB";
+                usedGbText = $"{Math.Round((memUsageModel.Used * 1.00) / 1000000000, 2)} GB";
             }
             catch { memUsage = 0; }
 

@@ -25,7 +25,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             {
                 var piHoleSummary = await _piHoleService.GetSummary();
                 blockedPct = Math.Round(piHoleSummary.AdsPercentageToday, 1);
-                blockedCountText = piHoleSummary.AdsBlockedToday.ToString();
+                blockedCountText = $"{ piHoleSummary.AdsBlockedToday.ToString()} req";
             }
             catch { blockedPct = 0; throw; }
             return new StatusValue(
