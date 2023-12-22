@@ -2,6 +2,7 @@ using Iot.Device.Graphics;
 using Iot.Device.Graphics.SkiaSharpAdapter;
 using Microsoft.Extensions.Options;
 using OrangePi.Common.Services;
+using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
 using SkiaSharp;
 using System.Device.Gpio;
@@ -45,32 +46,21 @@ namespace OrangePi.Display.Status.Service
         int fontSize = 12;
 
         private readonly ILogger<Worker> _logger;
-        private readonly ITemperatureService _temperatureService;
-        private readonly IProcessRunner _processRunner;
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SwitchConfig _switchConfig;
-        private readonly IGlancesService _glancesService;
-        private readonly IPiHoleService _piHoleService;
         readonly System.Timers.Timer _timer;
-
+        readonly IEnumerable<IInfoService> _infoServices;
         public Worker(
             ILogger<Worker> logger,
-            ITemperatureService temperatureService,
-            IProcessRunner processRunner,
             IOptions<ServiceConfiguration> serviceConfiguration,
             IOptions<SwitchConfig> switchConfig,
-            IGlancesService glancesService,
-            IPiHoleService piHoleService
+            IEnumerable<IInfoService> infoServices
             )
         {
             _logger = logger;
-            _temperatureService = temperatureService;
-            _processRunner = processRunner;
             _serviceConfiguration = serviceConfiguration.Value;
-            _glancesService = glancesService;
             _switchConfig = switchConfig.Value;
-            _piHoleService = piHoleService;
-
+ 
             _timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
             _timer.Elapsed += timer_Elapsed;
             SkiaSharpAdapter.Register();
@@ -106,99 +96,6 @@ namespace OrangePi.Display.Status.Service
             var switchMonitor = Task.Run(() => MonitorSwitch(stoppingToken));
 
             var pause = _serviceConfiguration.IntervalTimeSpan;
-            var values = new List<Func<Task<StatusValue>>>();
-
-            #region Add values func
-            values.Add(async () =>
-            {
-                double cpuTemp = 0;
-                double cpuTempF = 0;
-                try
-                {
-                    cpuTemp = await _temperatureService.GetCpuTemperature();
-                    cpuTempF = Math.Round(((cpuTemp * 9) / 5) + 32);
-                    cpuTemp = Math.Round(cpuTemp, 1);
-                }
-                catch
-                {
-                    cpuTemp = 0;
-                }
-
-                return new StatusValue(
-                    label: "CPU",
-                    valueText: $"{cpuTemp}°C",
-                    value: cpuTemp,
-                    note: $"{cpuTempF}°F");
-
-            });
-            values.Add(async () =>
-            {
-                double cpuUsage = 0;
-                try
-                {
-                    var cpuUsageModel = await _glancesService.GetCpuUsage();
-                    cpuUsage = Math.Round(cpuUsageModel.Total, 2);
-                }
-                catch { cpuUsage = 0; }
-                return new StatusValue(
-                    label: "CPU",
-                    valueText: $"{cpuUsage}%",
-                    value: cpuUsage);
-
-            });
-            values.Add(async () =>
-            {
-                double memUsage = 0;
-                string? usedGbText = null;
-                try
-                {
-                    var memUsageModel = await _glancesService.GetMemoryUsage();
-                    memUsage = Math.Round(memUsageModel.Percent, 2);
-                    usedGbText = $"{Math.Round((memUsageModel.Used * 1.00) / 1000000000, 2)}GB";
-                }
-                catch { memUsage = 0; }
-                return new StatusValue(
-                    label: $"RAM",
-                    valueText: $"{memUsage}%",
-                    value: memUsage,
-                    note: usedGbText);
-            });
-            values.Add(async () =>
-            {
-                double fsUsage = 0;
-                string? usedGbText = null;
-                try
-                {
-                    var fsUsageModel = await _glancesService.GetFileSystemUsage("/etc/hostname");
-                    fsUsage = Math.Round(fsUsageModel.Percent, 2);
-                    usedGbText = $"{Math.Round((fsUsageModel.Used * 1.00) / 1000000000, 2)}GB";
-                }
-                catch { fsUsage = 0; }
-                return new StatusValue(
-                    label: $"SSD",
-                    valueText: $"{fsUsage}%",
-                    value: fsUsage,
-                    note: usedGbText);
-            });
-            values.Add(async () =>
-            {
-                double blockedPct = 0;
-                string? blockedCountText = null;
-                try
-                {
-                    var piHoleSummary = await _piHoleService.GetSummary();
-                    blockedPct = Math.Round(piHoleSummary.AdsPercentageToday, 1);
-                    blockedCountText = piHoleSummary.AdsBlockedToday.ToString();
-                }
-                catch { blockedPct = 0; throw; }
-                return new StatusValue(
-                    label: $"PiH",
-                    valueText: $"{blockedPct}%",
-                    value: blockedPct,
-                    note: blockedCountText);
-            });
-            #endregion
-
 
             //https://pinout.xyz/pinout/i2c
             using (var device = I2cDevice.Create(new I2cConnectionSettings(_serviceConfiguration.BusId, _serviceConfiguration.DeviceAddress)))
@@ -222,13 +119,13 @@ namespace OrangePi.Display.Status.Service
 
                         ssd1306.EnableDisplay(true);
 
-                        foreach (var valueFunc in values)
+                        foreach (var infoService in _infoServices)
                         {
                             if (stoppingToken.IsCancellationRequested)
                                 break;
 
                             await Task.Delay(pause);
-                            var value = await valueFunc();
+                            var value = await infoService.GetValue();
 
                             using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
                             {
@@ -255,8 +152,8 @@ namespace OrangePi.Display.Status.Service
                                 })
                                 {
                                     SKRect sizeRect = new();
-                                    labelPaint.MeasureText(value.Label, ref sizeRect);
-                                    graphic.DrawText(text: value.Label,
+                                    labelPaint.MeasureText(infoService.Label, ref sizeRect);
+                                    graphic.DrawText(text: infoService.Label,
                                         fontFamilyName: fontName,
                                         size: fontSize,
                                         color: Color.White,

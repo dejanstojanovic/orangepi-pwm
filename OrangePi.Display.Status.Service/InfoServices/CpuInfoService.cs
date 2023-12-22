@@ -24,24 +24,41 @@ namespace OrangePi.Display.Status.Service.InfoServices
 
         public async Task<StatusValue> GetValue()
         {
-            double cpuTemp = 0;
-            try
+            var tempTask = Task.Run(async () =>
             {
-                cpuTemp = await _temperatureService.GetCpuTemperature();
-                 cpuTemp = Math.Round(cpuTemp, 1);
-            }
-            catch
-            {
-                cpuTemp = 0;
-            }
+                double cpuTemp = 0;
+                try
+                {
+                    cpuTemp = await _temperatureService.GetCpuTemperature();
+                    cpuTemp = Math.Round(cpuTemp, 1);
+                }
+                catch
+                {
+                    cpuTemp = 0;
+                }
 
-            double cpuUsage
+                return cpuTemp;
+            });
+
+            var usageTask = Task.Run(async () =>
+            {
+                double cpuUsage = 0;
+                try
+                {
+                    var cpuUsageModel = await _glancesService.GetCpuUsage();
+                    cpuUsage = Math.Round(cpuUsageModel.Total, 2);
+                }
+                catch { cpuUsage = 0; }
+                return cpuUsage;
+            });
+
+
+            await Task.WhenAll<double>(tempTask, usageTask);
 
             return new StatusValue(
-                label: "CPU",
-                valueText: $"{cpuTemp}°C",
-                value: cpuTemp,
-                note: $"{}°%");
+                valueText: $"{usageTask.Result}%",
+                value: usageTask.Result,
+                note: $"{tempTask.Result}°C");
 
         }
     }

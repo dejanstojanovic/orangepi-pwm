@@ -3,6 +3,7 @@
 using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
+using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
 
 
@@ -29,6 +30,14 @@ IHost host = Host.CreateDefaultBuilder(args)
             Url = new Uri("https://pihole.myhomeserver.local/"),
             Key = "39a2885f0dea20dc57854225bce0a571bd2a7cd6c6d2f97873be6fb1261fd914"
         });
+
+        services.Scan(selector => selector
+            .FromCallingAssembly()
+            .AddClasses(
+                classSelector =>
+                    classSelector.InNamespaces(typeof(IInfoService).Namespace)
+            ).AsImplementedInterfaces()
+); ;
     })
     .ConfigureLogging(logging =>
     {

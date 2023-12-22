@@ -2,13 +2,13 @@
 {
     public class StatusValue
     {
-        public StatusValue(string label, double value, string valueText)
+        public StatusValue(double value, string valueText)
         {
             ValueText = valueText;
             Value = value;
         }
 
-        public StatusValue(string label, double value, string valueText, string? note) : this(label, value, valueText)
+        public StatusValue(double value, string valueText, string? note) : this(value, valueText)
         {
             this.Note = note;
         }
