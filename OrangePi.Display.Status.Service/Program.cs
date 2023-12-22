@@ -3,6 +3,7 @@
 using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
+using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
 
 
@@ -23,12 +24,20 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker>();
         services.AddSingleton<IProcessRunner, ProcessRunner>();
         services.AddSingleton<ITemperatureService, TemperatureService>();
-        services.AddGlancesService("http://192.168.1.25:61208/");
+        services.AddGlancesService(hostContext.Configuration.GetValue<string>("Glances:Url"));
         services.AddPiHole(new OrangePi.Common.Models.PiHoleConfig
         {
-            Url = new Uri("https://pihole.myhomeserver.local/"),
-            Key = "39a2885f0dea20dc57854225bce0a571bd2a7cd6c6d2f97873be6fb1261fd914"
+            Url = new Uri(hostContext.Configuration.GetValue<string>("PiHole:Url")),
+            Key = hostContext.Configuration.GetValue<string>("PiHole:Key")
         });
+
+        services.Scan(selector => selector
+            .FromCallingAssembly()
+            .AddClasses(
+                classSelector =>
+                    classSelector.InNamespaces(typeof(IInfoService).Namespace)
+            ).AsImplementedInterfaces()
+); ;
     })
     .ConfigureLogging(logging =>
     {

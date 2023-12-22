@@ -9,9 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="Iot.Device.Bindings" Version="3.1.0" />-->
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <!--<PackageReference Include="System.Device.Gpio" Version="3.1.0" />-->
+    <PackageReference Include="Scrutor" Version="4.2.2" />
   </ItemGroup>
 
   <ItemGroup>
