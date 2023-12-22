@@ -58,9 +58,10 @@ namespace OrangePi.Display.Status.Service
             )
         {
             _logger = logger;
+            _infoServices = infoServices;
             _serviceConfiguration = serviceConfiguration.Value;
             _switchConfig = switchConfig.Value;
- 
+
             _timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
             _timer.Elapsed += timer_Elapsed;
             SkiaSharpAdapter.Register();
