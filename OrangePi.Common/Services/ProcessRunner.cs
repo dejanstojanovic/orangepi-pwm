@@ -8,13 +8,30 @@ namespace OrangePi.Common.Services
         {
             using (Process process = new Process())
             {
-                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.UseShellExecute = true;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.FileName = command;
                 foreach (var arg in args)
                 {
                     process.StartInfo.ArgumentList.Add(arg);
                 }
+
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                await process.WaitForExitAsync();
+
+                return output;
+            }
+        }
+
+        public async Task<string> RunAsync(string command, string arguments)
+        {
+            using (Process process = new Process())
+            {
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.FileName = command;
+                process.StartInfo.Arguments = arguments;
 
                 process.Start();
                 string output = process.StandardOutput.ReadToEnd();
