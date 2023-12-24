@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace OrangePi.Common.Services
 {
@@ -24,11 +25,11 @@ namespace OrangePi.Common.Services
             }
         }
 
-        public async Task<string> RunAsync(string command, string arguments)
+        public async Task<string> RunAsync(string command, string arguments, bool useShellExecute = false)
         {
             using (Process process = new Process())
             {
-                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.UseShellExecute = useShellExecute;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.FileName = command;
                 process.StartInfo.Arguments = arguments;
