@@ -32,7 +32,7 @@ namespace OrangePi.Fan.Service
         {
             if (_serviceConfigMonitor.CurrentValue.StartSound.Enabled)
                 await _buzzer.Play(
-                    frequency: 330, 
+                    frequency: 4000, 
                     lenght: TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval))
                     .ConfigureAwait(false);
 
@@ -92,7 +92,7 @@ namespace OrangePi.Fan.Service
 
             if(_serviceConfigMonitor.CurrentValue.ExitSound.Enabled)
                 await _buzzer.Play(
-                    frequency: 330,
+                    frequency: 4000,
                     lenght: TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval))
                     .ConfigureAwait(false);
 
