@@ -5,7 +5,7 @@
     <Platforms>AnyCPU;ARM64</Platforms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-OrangePi.Display.Status.Service-a17b8bb9-d6f6-4b9a-a1ee-a240be470b7b</UserSecretsId>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
