@@ -22,7 +22,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         hostContext.Configuration.Bind(nameof(buzzerConfig), buzzerConfig);
 
         services.AddProcessRunner()
-                .AddTemperatureCheck()
+                .AddCpuTemperatureReader()
+                .AddSsdTemperatureReader()
                 .AddBuzzer(buzzerConfig);
         
     })

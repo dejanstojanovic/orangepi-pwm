@@ -11,6 +11,11 @@
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public string TemperatureReader { get; set; }
+
+        /// <summary>
         /// wPi column value from "gpio readall"
         /// </summary>
         public int WiringPi { get; set; }

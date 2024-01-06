@@ -10,8 +10,8 @@ namespace OrangePi.Display.Status.Service.InfoServices
 {
     public class RamInfoService : IInfoService
     {
-        private readonly IGlancesService _glancesService;
-        public RamInfoService(IGlancesService glancesService)
+        private readonly IGlancesClient _glancesService;
+        public RamInfoService(IGlancesClient glancesService)
         {
             _glancesService = glancesService;
         }

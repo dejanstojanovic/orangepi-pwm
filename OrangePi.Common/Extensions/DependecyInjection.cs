@@ -23,20 +23,26 @@ namespace OrangePi.Common.Extensions
         public static IServiceCollection AddProcessRunner(this IServiceCollection services)
         {
             services.AddSingleton<IProcessRunner, ProcessRunner>();
-            services.AddSingleton<ITemperatureService, TemperatureService>();
+            services.AddSingleton<ITemperatureReader, CpuTemperatureReader>();
             return services;
         }
 
-        public static IServiceCollection AddTemperatureCheck(this IServiceCollection services)
+        public static IServiceCollection AddCpuTemperatureReader(this IServiceCollection services)
         {
-            services.AddSingleton<ITemperatureService, TemperatureService>();
+            services.AddSingleton<ITemperatureReader, CpuTemperatureReader>();
+            return services;
+        }
+
+        public static IServiceCollection AddSsdTemperatureReader(this IServiceCollection services)
+        {
+            services.AddSingleton<ITemperatureReader, SsdTemperatureReader>();
             return services;
         }
 
         public static IServiceCollection AddGlancesService(this IServiceCollection services, Uri apiUrl)
         {
-            services.AddSingleton<IGlancesService, GlancesService>();
-            services.AddHttpClient<IGlancesService, GlancesService>(c =>
+            services.AddSingleton<IGlancesClient, GlancesClient>();
+            services.AddHttpClient<IGlancesClient, GlancesClient>(c =>
             {
                 c.BaseAddress = apiUrl;
             });

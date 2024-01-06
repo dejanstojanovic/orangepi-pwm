@@ -2,23 +2,23 @@
 
 namespace OrangePi.Common.Services
 {
-    public class TemperatureService : ITemperatureService
+    public class CpuTemperatureReader : ITemperatureReader
     {
         private readonly IProcessRunner _processRunner;
         private readonly CpuTemperature _cpuTemperature;
 
-        public TemperatureService(
+        public CpuTemperatureReader(
             IProcessRunner processRunner)
         {
             _processRunner = processRunner;
             _cpuTemperature = new CpuTemperature();
         }
 
-        public TemperatureService()
+        public CpuTemperatureReader()
         {
                 
         }
-        public async Task<double> GetCpuTemperature()
+        public async Task<double> GetTemperature()
         {
             double temperature = 0;
             if (!double.IsNaN(_cpuTemperature.Temperature.DegreesCelsius) && _cpuTemperature.Temperature.DegreesCelsius > 0)

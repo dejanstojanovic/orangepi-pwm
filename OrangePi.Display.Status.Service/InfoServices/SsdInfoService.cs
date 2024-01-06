@@ -10,10 +10,10 @@ namespace OrangePi.Display.Status.Service.InfoServices
 {
     public class SsdInfoService : IInfoService
     {
-        private readonly IGlancesService _glancesService;
+        private readonly IGlancesClient _glancesService;
         private readonly IProcessRunner _processRunner;
         public SsdInfoService(
-            IGlancesService glancesService,
+            IGlancesClient glancesService,
             IProcessRunner processRunner)
         {
             _glancesService = glancesService;
