@@ -39,7 +39,7 @@ namespace OrangePi.Fan.Service
                     lenght: TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval))
                     .ConfigureAwait(false);
 
-            double previousValue = 0;
+            double previousValue = int.MinValue;
             await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.WiringPi.ToString(), "pwm");
 
             while (!stoppingToken.IsCancellationRequested)
@@ -86,7 +86,6 @@ namespace OrangePi.Fan.Service
                 {
                     previousValue = value.Value;
                     _logger.LogInformation($"Updating PWM Temperature: {temperature}; Value: {value}");
-
                     await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.WiringPi.ToString(), value.ToString());
                 }
 

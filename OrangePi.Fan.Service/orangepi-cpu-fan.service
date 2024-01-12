@@ -2,8 +2,8 @@
 Description=Run fan PWM control
 
 [Service]
-ExecStart=%h/.dotnet/dotnet /etc/orangepi-fan/OrangePi.Fan.Service.dll ServiceConfiguration__TemperatureReader=CpuTemperatureReader ServiceConfiguration__TemperatureCheckIntervalSeconds=1
-WorkingDirectory=/etc/orangepi-fan
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-cpu-fan/OrangePi.Fan.Service.dll ServiceConfiguration__TemperatureReader=CpuTemperatureReader ServiceConfiguration__TemperatureCheckIntervalSeconds=1
+WorkingDirectory=/etc/orangepi-cpu-fan
 User=root
 Group=0
 Type=simple

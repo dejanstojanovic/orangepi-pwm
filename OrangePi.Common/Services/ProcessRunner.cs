@@ -9,7 +9,7 @@ namespace OrangePi.Common.Services
         {
             using (Process process = new Process())
             {
-                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.FileName = command;
                 foreach (var arg in args)
