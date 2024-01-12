@@ -23,9 +23,12 @@ namespace OrangePi.Fan.Service
             _logger = logger;
             _serviceConfigMonitor = serviceConfigMonitor;
             _processRunner = processRunner;
-            _temperatureReader = temperatureReader.Single(s => s.GetType().Name == serviceConfigMonitor.CurrentValue.TemperatureReader);
+            _temperatureReader = temperatureReader.Single(s => s.GetType().Name == serviceConfigMonitor.CurrentValue.TemperatureReader ||
+                                                               s.GetType().FullName == serviceConfigMonitor.CurrentValue.TemperatureReader);
             _buzzer = buzzer;
 
+            _logger.LogInformation($"Initializing reader: {_temperatureReader.GetType().FullName}");
+            _logger.LogInformation($"Reader check interval: {_serviceConfigMonitor.CurrentValue.TemperatureCheckIntervalSeconds} seconds");
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
