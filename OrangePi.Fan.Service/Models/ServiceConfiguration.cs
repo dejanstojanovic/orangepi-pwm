@@ -28,7 +28,7 @@
         /// <summary>
         /// Interval for checking the temperature
         /// </summary>
-        public double TemperatureCheckInterval { get; set; }
+        public double TemperatureCheckIntervalSeconds { get; set; }
 
         /// <summary>
         /// Value to set to PWM when service is shutting down

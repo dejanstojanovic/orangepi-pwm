@@ -87,7 +87,7 @@ namespace OrangePi.Fan.Service
                     await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.WiringPi.ToString(), value.ToString());
                 }
 
-                Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.TemperatureCheckInterval)).Wait();
+                Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.TemperatureCheckIntervalSeconds)).Wait();
             }
 
             if (_serviceConfigMonitor.CurrentValue.ExitSound.Enabled)

@@ -23,7 +23,6 @@ namespace OrangePi.Common.Extensions
         public static IServiceCollection AddProcessRunner(this IServiceCollection services)
         {
             services.AddSingleton<IProcessRunner, ProcessRunner>();
-            services.AddSingleton<ITemperatureReader, CpuTemperatureReader>();
             return services;
         }
 

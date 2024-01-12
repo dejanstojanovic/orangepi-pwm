@@ -2,8 +2,8 @@
 Description=Run fan PWM control
 
 [Service]
-ExecStart=%h/.dotnet/dotnet /etc/orangepi-fan/OrangePi.Fan.Service.dll
-WorkingDirectory=/etc/orangepi-fan
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-ssd-fan/OrangePi.Fan.Service.dll
+WorkingDirectory=/etc/orangepi-ssd-fan
 User=root
 Group=0
 Type=simple
