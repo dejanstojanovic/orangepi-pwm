@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace OrangePi.Common.Services
 {
-    public interface ITemperatureService
+    public interface ITemperatureReader
     {
-        Task<double> GetCpuTemperature();
+        Task<double> GetTemperature();
     }
 }

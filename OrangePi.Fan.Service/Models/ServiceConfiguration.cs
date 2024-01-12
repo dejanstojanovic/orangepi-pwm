@@ -11,6 +11,11 @@
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public string TemperatureReader { get; set; }
+
+        /// <summary>
         /// wPi column value from "gpio readall"
         /// </summary>
         public int WiringPi { get; set; }
@@ -23,7 +28,7 @@
         /// <summary>
         /// Interval for checking the temperature
         /// </summary>
-        public double TemperatureCheckInterval { get; set; }
+        public double TemperatureCheckIntervalSeconds { get; set; }
 
         /// <summary>
         /// Value to set to PWM when service is shutting down

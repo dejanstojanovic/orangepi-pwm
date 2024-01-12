@@ -23,7 +23,10 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
         services.AddHostedService<Worker>();
         services.AddSingleton<IProcessRunner, ProcessRunner>();
-        services.AddSingleton<ITemperatureService, TemperatureService>();
+
+        services.AddSingleton<ITemperatureReader, CpuTemperatureReader>();
+        services.AddSingleton<ITemperatureReader, SsdTemperatureReader>();
+
         services.AddGlancesService(hostContext.Configuration.GetValue<string>("Glances:Url"));
         services.AddPiHole(new OrangePi.Common.Models.PiHoleConfig
         {

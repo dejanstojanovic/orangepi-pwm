@@ -1,0 +1,13 @@
+[Unit]
+Description=Run fan PWM control
+
+[Service]
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-ssd-fan/OrangePi.Fan.Service.dll ServiceConfiguration__TemperatureReader=SsdTemperatureReader ServiceConfiguration__TemperatureCheckIntervalSeconds=5 ServiceConfiguration_WiringPi=16
+WorkingDirectory=/etc/orangepi-ssd-fan
+User=root
+Group=0
+Type=simple
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

@@ -11,32 +11,35 @@ namespace OrangePi.Fan.Service
         private readonly ILogger<Worker> _logger;
         private readonly IOptionsMonitor<ServiceConfiguration> _serviceConfigMonitor;
         private readonly IProcessRunner _processRunner;
-        private readonly ITemperatureService _cpuTemperature;
+        private readonly ITemperatureReader _temperatureReader;
         private readonly IBuzzerService _buzzer;
         public Worker(
             ILogger<Worker> logger,
             IOptionsMonitor<ServiceConfiguration> serviceConfigMonitor,
             IProcessRunner processRunner,
-            ITemperatureService cpuTemperature,
+            IEnumerable<ITemperatureReader> temperatureReader,
             IBuzzerService buzzer)
         {
             _logger = logger;
             _serviceConfigMonitor = serviceConfigMonitor;
             _processRunner = processRunner;
-            _cpuTemperature = cpuTemperature;
+            _temperatureReader = temperatureReader.Single(s => s.GetType().Name == serviceConfigMonitor.CurrentValue.TemperatureReader ||
+                                                               s.GetType().FullName == serviceConfigMonitor.CurrentValue.TemperatureReader);
             _buzzer = buzzer;
 
+            _logger.LogInformation($"Initializing reader: {_temperatureReader.GetType().FullName}");
+            _logger.LogInformation($"Reader check interval: {_serviceConfigMonitor.CurrentValue.TemperatureCheckIntervalSeconds} seconds");
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (_serviceConfigMonitor.CurrentValue.StartSound.Enabled)
                 await _buzzer.Play(
-                    frequency: 4000, 
+                    frequency: 4000,
                     lenght: TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval))
                     .ConfigureAwait(false);
 
-            double previousValue = 0;
+            double previousValue = int.MinValue;
             await _processRunner.RunAsync("gpio", "mode", _serviceConfigMonitor.CurrentValue.WiringPi.ToString(), "pwm");
 
             while (!stoppingToken.IsCancellationRequested)
@@ -74,7 +77,7 @@ namespace OrangePi.Fan.Service
                 }
                 #endregion
 
-                temperature = await _cpuTemperature.GetCpuTemperature();
+                temperature = await _temperatureReader.GetTemperature();
 
                 var value = ranges.SingleOrDefault(r => temperature >= r.Start && temperature <= r.End)?.Value;
                 value = value ?? 0;
@@ -83,14 +86,13 @@ namespace OrangePi.Fan.Service
                 {
                     previousValue = value.Value;
                     _logger.LogInformation($"Updating PWM Temperature: {temperature}; Value: {value}");
-
                     await _processRunner.RunAsync("gpio", "pwm", _serviceConfigMonitor.CurrentValue.WiringPi.ToString(), value.ToString());
                 }
 
-                Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.TemperatureCheckInterval)).Wait();
+                Task.Delay(TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.TemperatureCheckIntervalSeconds)).Wait();
             }
 
-            if(_serviceConfigMonitor.CurrentValue.ExitSound.Enabled)
+            if (_serviceConfigMonitor.CurrentValue.ExitSound.Enabled)
                 await _buzzer.Play(
                     frequency: 4000,
                     lenght: TimeSpan.FromSeconds(_serviceConfigMonitor.CurrentValue.StartSound.Interval))
