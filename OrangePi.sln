@@ -30,7 +30,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "I2CSample", "I2CSample\I2CS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiezzoSample", "PiezzoSample\PiezzoSample.csproj", "{18AD74DD-40BC-46C8-854E-B81015CDBCC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MotionSensorSample", "MotionSensorSample\MotionSensorSample.csproj", "{EC1D7FCC-3592-4314-A56A-D7BEEFE63222}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MotionSensorSample", "MotionSensorSample\MotionSensorSample.csproj", "{EC1D7FCC-3592-4314-A56A-D7BEEFE63222}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingSample", "DrawingSample\DrawingSample.csproj", "{42CF9300-F056-4E38-8205-D31D138A57F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,6 +114,14 @@ Global
 		{EC1D7FCC-3592-4314-A56A-D7BEEFE63222}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EC1D7FCC-3592-4314-A56A-D7BEEFE63222}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{EC1D7FCC-3592-4314-A56A-D7BEEFE63222}.Release|ARM64.Build.0 = Release|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{42CF9300-F056-4E38-8205-D31D138A57F2}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -125,6 +135,7 @@ Global
 		{1105CAB1-E371-485D-8F82-BA1D69634187} = {90BE89A9-AB13-435F-97D9-315DD08C0B33}
 		{18AD74DD-40BC-46C8-854E-B81015CDBCC8} = {90BE89A9-AB13-435F-97D9-315DD08C0B33}
 		{EC1D7FCC-3592-4314-A56A-D7BEEFE63222} = {90BE89A9-AB13-435F-97D9-315DD08C0B33}
+		{42CF9300-F056-4E38-8205-D31D138A57F2} = {90BE89A9-AB13-435F-97D9-315DD08C0B33}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5262D94B-A432-4F44-8EA1-05577AF1C085}
