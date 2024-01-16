@@ -9,7 +9,7 @@ SkiaSharpAdapter.Register();
 int screenWidth = 128;
 int screenHeight = 64;
 var font = "DejaVu Sans Bold";
-var ipFontSize = 20;
+var ipFontSize = 18;
 
 using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
 {
@@ -17,28 +17,42 @@ using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelForm
     var graphic = image.GetDrawingApi();
     var canvas = graphic.GetCanvas();
 
-    var ip = "255.255.255.255";
+    var ip = "192.168.1.25";
+    var host = "orangepi5";
     //Draw IP
-    using (var ipLabelPaint = new SKPaint
+    using (var labelPaint = new SKPaint
     {
         TextSize = ipFontSize,
     })
     {
-        SKRect sizeRect = new();
-        ipLabelPaint.MeasureText(ip, ref sizeRect);
+        SKRect ipSizeRect = new();
+        labelPaint.MeasureText(ip, ref ipSizeRect);
+
         graphic.DrawText(text: ip,
             fontFamilyName: font,
             size: ipFontSize,
             color: Color.White,
             position: new Point(
-                x: (screenHeight / 2) - ((int)sizeRect.Width / 2),
-                y: 0 //(screenHeight / 4) - (ipFontSize - 2) + 2)
+                x: (screenWidth / 2) - ((int)ipSizeRect.Width / 2),
+                y: ((screenHeight / 2) - ((int)ipSizeRect.Height * 2) / 2) - 10
+            ));
+
+        SKRect hostSizeRect = new();
+        labelPaint.MeasureText(host, ref hostSizeRect);
+
+        graphic.DrawText(text: host,
+            fontFamilyName: font,
+            size: ipFontSize,
+            color: Color.White,
+            position: new Point(
+                x: (screenWidth / 2) - ((int)hostSizeRect.Width / 2),
+                y: ((screenHeight / 2) - ((int)hostSizeRect.Height * 2) / 2) + (int)hostSizeRect.Height 
             ));
     }
 
     var filePath = @"C:\temp\ip-info.png";
-    if(File.Exists(filePath))
+    if (File.Exists(filePath))
         File.Delete(filePath);
-    image.SaveToFile(filePath , ImageFileType.Png);
+    image.SaveToFile(filePath, ImageFileType.Png);
 
 }
