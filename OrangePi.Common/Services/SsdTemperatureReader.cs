@@ -3,7 +3,8 @@
     public class SsdTemperatureReader : ITemperatureReader
     {
         readonly IProcessRunner _processRunner;
-        public SsdTemperatureReader(IProcessRunner processRunner)
+        public SsdTemperatureReader(
+            IProcessRunner processRunner)
         {
             _processRunner = processRunner;
         }

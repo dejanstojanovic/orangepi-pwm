@@ -11,13 +11,13 @@ namespace OrangePi.Display.Status.Service.InfoServices
     public class SsdInfoService : IInfoService
     {
         private readonly IGlancesClient _glancesService;
-        private readonly IProcessRunner _processRunner;
+        private readonly ITemperatureReader _temperatureReader;
         public SsdInfoService(
             IGlancesClient glancesService,
-            IProcessRunner processRunner)
+            IEnumerable<ITemperatureReader> temperatureReaders)
         {
             _glancesService = glancesService;
-            _processRunner = processRunner;
+            _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(SsdTemperatureReader));
 
         }
 
@@ -36,9 +36,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             double ssdTemp = 0;
             try
             {
-                var output = await _processRunner.RunAsync("/bin/bash", "-c \"smartctl -a /dev/nvme0 | grep 'Temperature:'\"", false);
-                var value = output.Split(":").Last().Replace("Celsius", string.Empty).Trim();
-                ssdTemp = double.Parse(value);
+                ssdTemp = await _temperatureReader.GetTemperature();
             }
             catch (Exception ex)
             {
