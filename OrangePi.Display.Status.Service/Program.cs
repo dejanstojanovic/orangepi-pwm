@@ -24,8 +24,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker>();
         services.AddSingleton<IProcessRunner, ProcessRunner>();
 
-        services.AddSingleton<ITemperatureReader, CpuTemperatureReader>();
-        services.AddSingleton<ITemperatureReader, SsdTemperatureReader>();
+        services.AddCpuTemperatureReader();
+        services.AddSsdTemperatureReader("nvme0");
 
         services.AddGlancesService(hostContext.Configuration.GetValue<string>("Glances:Url"));
         services.AddPiHole(new OrangePi.Common.Models.PiHoleConfig
