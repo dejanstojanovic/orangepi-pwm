@@ -8,12 +8,63 @@ using SkiaSharp;
 using System.Device.Gpio;
 using System.Device.I2c;
 using System.Drawing;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace OrangePi.Display.Status.Service.Extensions
 {
     public static class InfoServiceExtensions
     {
+        public static async Task<BitmapImage> GetHostDisplay(
+            this IHostInfoService hostInfoService,
+            string networkAdapter,
+            int screenWidth,
+            int screenHeight,
+            string fontName,
+            int fontSize
+        )
+        {
+            var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb);
+            image.Clear(Color.Black);
+            var graphic = image.GetDrawingApi();
+            var canvas = graphic.GetCanvas();
+
+            var ip = await hostInfoService.GetIpAddress(networkAdapter);
+            var host = await hostInfoService.GetHostName();
+            //Draw IP
+            using (var labelPaint = new SKPaint
+            {
+                TextSize = fontSize,
+            })
+            {
+                SKRect ipSizeRect = new();
+                labelPaint.MeasureText(ip, ref ipSizeRect);
+
+                graphic.DrawText(text: ip,
+                    fontFamilyName: fontName,
+                    size: fontSize,
+                    color: Color.White,
+                    position: new Point(
+                        x: (screenWidth / 2) - ((int)ipSizeRect.Width / 2),
+                        y: ((screenHeight / 4) - ((int)ipSizeRect.Height * 2) / 2) - 2
+                    ));
+
+                SKRect hostSizeRect = new();
+                labelPaint.MeasureText(host, ref hostSizeRect);
+
+                graphic.DrawText(text: host,
+                    fontFamilyName: fontName,
+                    size: fontSize,
+                    color: Color.White,
+                    position: new Point(
+                        x: (screenWidth / 2) - ((int)hostSizeRect.Width / 2),
+                        y: ((screenHeight / 4) - ((int)hostSizeRect.Height * 2) / 2) + (int)hostSizeRect.Height
+                    ));
+            }
+
+            return image;
+        }
+
         public static async Task<BitmapImage> GetDonutChart(
             this IInfoService infoService,
             int screenWidth,
