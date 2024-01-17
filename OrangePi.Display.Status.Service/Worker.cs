@@ -78,13 +78,24 @@ namespace OrangePi.Display.Status.Service
         {
             using (var controller = new GpioController())
             {
-                var pin = controller.OpenPin(_switchConfig.GPIO, PinMode.Input);
+                var motionPin = controller.OpenPin(_switchConfig.GPIO, PinMode.Input);
+                var tasterPin = controller.OpenPin(58, PinMode.Input);
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    var value = pin.Read();
-                    if (value == PinValue.High)
+                    var tasterValue = tasterPin.Read();
+                    if (tasterValue == PinValue.High)
                     {
-                        this.Switch = true;
+                        this.Switch = false;
+
+                        //TODO: Draw host info
+                    }
+                    else
+                    {
+                        var motionValue = motionPin.Read();
+                        if (motionValue == PinValue.High)
+                        {
+                            this.Switch = true;
+                        }
                     }
 
                     Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
@@ -142,5 +153,10 @@ namespace OrangePi.Display.Status.Service
             await switchMonitor.WaitAsync(stoppingToken);
         }
 
+        public override void Dispose()
+        {
+            base.Dispose();
+            //TODO: dispose class level stuff
+        }
     }
 }
