@@ -127,9 +127,11 @@ namespace OrangePi.Display.Status.Service
                                 break;
 
                             await Task.Delay(pause);
-                            var image = await infoService.GetDonutChart(screenWidth, screenHeight, fontName, fontSize);
 
-                            ssd1306.DrawBitmap(image);
+                            using (var image = await infoService.GetDonutChart(screenWidth, screenHeight, fontName, fontSize))
+                            {
+                                ssd1306.DrawBitmap(image);
+                            }
 
                         }
                     }
