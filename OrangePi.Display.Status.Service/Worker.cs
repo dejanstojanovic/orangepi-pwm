@@ -50,12 +50,12 @@ namespace OrangePi.Display.Status.Service
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SwitchConfig _switchConfig;
         readonly System.Timers.Timer _timer;
-        readonly IEnumerable<IInfoService> _infoServices;
+        readonly IEnumerable<IDisplayInfoService> _infoServices;
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
             IOptions<SwitchConfig> switchConfig,
-            IEnumerable<IInfoService> infoServices
+            IEnumerable<IDisplayInfoService> infoServices
             )
         {
             _logger = logger;
@@ -128,7 +128,7 @@ namespace OrangePi.Display.Status.Service
 
                             await Task.Delay(pause);
 
-                            using (var image = await infoService.GetDonutChart(screenWidth, screenHeight, fontName, fontSize))
+                            using (var image = await infoService.GetDisplay(screenWidth, screenHeight, fontName, fontSize))
                             {
                                 ssd1306.DrawBitmap(image);
                             }

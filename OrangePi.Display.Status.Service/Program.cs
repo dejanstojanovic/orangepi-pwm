@@ -38,10 +38,10 @@ IHost host = Host.CreateDefaultBuilder(args)
             .FromCallingAssembly()
             .AddClasses(
                 classSelector =>
-                    classSelector.InNamespaces(typeof(IInfoService).Namespace)
+                    classSelector.InNamespaces(typeof(IInfoService).Namespace).AssignableTo<IInfoService>()
             ).AsImplementedInterfaces());
 
-        services.AddSingleton<IHostInfoService, HostInfoService>();
+        services.AddSingleton<IHostInfoService>(x => new HostInfoService(x.GetRequiredService<IProcessRunner>(), "end1"));
     })
     .ConfigureLogging(logging =>
     {

@@ -1,14 +1,8 @@
 ﻿using Iot.Device.Graphics;
 using Iot.Device.Graphics.SkiaSharpAdapter;
-using Microsoft.Extensions.Options;
-using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.InfoServices;
-using OrangePi.Display.Status.Service.Models;
 using SkiaSharp;
-using System.Device.Gpio;
-using System.Device.I2c;
 using System.Drawing;
-using static System.Net.Mime.MediaTypeNames;
 
 
 namespace OrangePi.Display.Status.Service.Extensions
