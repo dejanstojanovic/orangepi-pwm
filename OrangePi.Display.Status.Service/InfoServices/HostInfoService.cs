@@ -4,7 +4,7 @@ using OrangePi.Display.Status.Service.Extensions;
 
 namespace OrangePi.Display.Status.Service.InfoServices
 {
-    public class HostInfoService : IHostInfoService, IDisplayInfoService
+    public class HostInfoService : IHostInfoService
     {
         readonly IProcessRunner _processRunner;
         readonly string _networkAdapter;

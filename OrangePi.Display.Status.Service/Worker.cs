@@ -55,11 +55,23 @@ namespace OrangePi.Display.Status.Service
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
             IOptions<SwitchConfig> switchConfig,
-            IEnumerable<IDisplayInfoService> infoServices
+            IEnumerable<IDisplayInfoService> infoServices,
+            IHostInfoService hostInfoService
             )
         {
             _logger = logger;
-            _infoServices = infoServices;
+
+            if (hostInfoService != null && !infoServices.Contains(hostInfoService))
+            {
+                var displayServicesList = infoServices.ToList();
+                displayServicesList.Prepend(hostInfoService);
+                _infoServices = displayServicesList.ToArray();
+            }
+            else
+            {
+                _infoServices = infoServices;
+            }
+
             _serviceConfiguration = serviceConfiguration.Value;
             _switchConfig = switchConfig.Value;
 
