@@ -1,5 +1,6 @@
 ﻿using Iot.Device.Graphics;
 using OrangePi.Common.Services;
+using OrangePi.Display.Status.Service.Extensions;
 using OrangePi.Display.Status.Service.Models;
 
 namespace OrangePi.Display.Status.Service.InfoServices
@@ -14,7 +15,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
 
         public string Label => "RAM";
 
-        public async Task<BitmapImage> GetDisplay(int screenWidth, int screenHeight, string fontName, int fontSize)
+        public async Task<BitmapImage> GetInfoDisplay(int screenWidth, int screenHeight, string fontName, int fontSize)
         {
             return await this.GetDisplay(screenWidth, screenHeight, fontName, fontSize);
         }

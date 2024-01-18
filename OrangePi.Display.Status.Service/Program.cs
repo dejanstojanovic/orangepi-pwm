@@ -34,14 +34,14 @@ IHost host = Host.CreateDefaultBuilder(args)
             Key = hostContext.Configuration.GetValue<string>("PiHole:Key")
         });
 
-        services.Scan(selector => selector
-            .FromCallingAssembly()
-            .AddClasses(
-                classSelector =>
-                    classSelector.InNamespaces(typeof(IInfoService).Namespace).AssignableTo<IInfoService>()
-            ).AsImplementedInterfaces());
+        //services.Scan(selector => selector
+        //    .FromCallingAssembly()
+        //    .AddClasses(
+        //        classSelector =>
+        //            classSelector.InNamespaces(typeof(IInfoService).Namespace).AssignableTo<IInfoService>()
+        //    ).AsImplementedInterfaces());
 
-        services.AddSingleton<IHostInfoService>(x => new HostInfoService(x.GetRequiredService<IProcessRunner>(), "end1"));
+        services.AddScoped<IHostInfoService>(x => new HostInfoService(x.GetRequiredService<IProcessRunner>(), "end1"));
     })
     .ConfigureLogging(logging =>
     {

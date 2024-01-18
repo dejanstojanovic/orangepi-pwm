@@ -9,6 +9,6 @@ namespace OrangePi.Display.Status.Service.InfoServices
 {
     public interface IDisplayInfoService
     {
-        Task<BitmapImage> GetDisplay(int screenWidth, int screenHeight, string fontName, int fontSize);
+        Task<BitmapImage> GetInfoDisplay(int screenWidth, int screenHeight, string fontName, int fontSize);
     }
 }

@@ -128,7 +128,7 @@ namespace OrangePi.Display.Status.Service
 
                             await Task.Delay(pause);
 
-                            using (var image = await infoService.GetDisplay(screenWidth, screenHeight, fontName, fontSize))
+                            using (var image = await infoService.GetInfoDisplay(screenWidth, screenHeight, fontName, fontSize))
                             {
                                 ssd1306.DrawBitmap(image);
                             }

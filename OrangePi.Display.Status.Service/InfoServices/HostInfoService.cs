@@ -1,9 +1,10 @@
 ﻿using Iot.Device.Graphics;
 using OrangePi.Common.Services;
+using OrangePi.Display.Status.Service.Extensions;
 
 namespace OrangePi.Display.Status.Service.InfoServices
 {
-    public class HostInfoService : IHostInfoService
+    public class HostInfoService : IHostInfoService, IDisplayInfoService
     {
         readonly IProcessRunner _processRunner;
         readonly string _networkAdapter;
@@ -14,7 +15,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             _networkAdapter = networkAdapter;
         }
 
-        public async Task<BitmapImage> GetDisplay(int screenWidth, int screenHeight, string fontName, int fontSize)
+        public async Task<BitmapImage> GetInfoDisplay(int screenWidth, int screenHeight, string fontName, int fontSize)
         {
             return await this.GetDisplay(screenWidth, screenHeight, fontName, fontSize);
         }
