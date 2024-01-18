@@ -15,9 +15,8 @@ namespace OrangePi.Display.Status.Service.Extensions
 {
     public static class InfoServiceExtensions
     {
-        public static async Task<BitmapImage> GetHostDisplay(
+        public static async Task<BitmapImage> GetDisplay(
             this IHostInfoService hostInfoService,
-            string networkAdapter,
             int screenWidth,
             int screenHeight,
             string fontName,
@@ -29,7 +28,7 @@ namespace OrangePi.Display.Status.Service.Extensions
             var graphic = image.GetDrawingApi();
             var canvas = graphic.GetCanvas();
 
-            var ip = await hostInfoService.GetIpAddress(networkAdapter);
+            var ip = await hostInfoService.GetIpAddress();
             var host = await hostInfoService.GetHostName();
             //Draw IP
             using (var labelPaint = new SKPaint
@@ -65,7 +64,7 @@ namespace OrangePi.Display.Status.Service.Extensions
             return image;
         }
 
-        public static async Task<BitmapImage> GetDonutChart(
+        public static async Task<BitmapImage> GetDisplay(
             this IInfoService infoService,
             int screenWidth,
             int screenHeight,

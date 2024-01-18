@@ -39,8 +39,9 @@ IHost host = Host.CreateDefaultBuilder(args)
             .AddClasses(
                 classSelector =>
                     classSelector.InNamespaces(typeof(IInfoService).Namespace)
-            ).AsImplementedInterfaces()
-); ;
+            ).AsImplementedInterfaces());
+
+        services.AddSingleton<IHostInfoService, HostInfoService>();
     })
     .ConfigureLogging(logging =>
     {

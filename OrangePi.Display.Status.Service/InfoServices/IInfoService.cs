@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace OrangePi.Display.Status.Service.InfoServices
 {
-    public interface IInfoService
+    public interface IInfoService : IDisplayInfoService
     {
         Task<StatusValue> GetValue();
-        string Label {  get; }
+        string Label { get; }
     }
 }

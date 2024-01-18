@@ -1,4 +1,5 @@
-﻿using OrangePi.Common.Services;
+﻿using Iot.Device.Graphics;
+using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.Models;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,11 @@ namespace OrangePi.Display.Status.Service.InfoServices
             _piHoleService = piHoleService;
         }
         public string Label => "PIh";
+
+        public async Task<BitmapImage> GetDisplay(int screenWidth, int screenHeight, string fontName, int fontSize)
+        {
+            return await this.GetDisplay(screenWidth, screenHeight, fontName, fontSize);
+        }
 
         public async Task<StatusValue> GetValue()
         {
