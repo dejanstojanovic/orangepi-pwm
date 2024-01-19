@@ -12,7 +12,7 @@ SkiaSharpAdapter.Register();
 int screenWidth = 128;
 int screenHeight = 64;
 var font = "DejaVu Sans Bold";
-var ipFontSize = 12;
+var fontSize = 12;
 
 using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
 {
@@ -20,37 +20,44 @@ using (var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelForm
     var graphic = image.GetDrawingApi();
     var canvas = graphic.GetCanvas();
 
-    var ip = "192.168.1.25";
-    var host = "orangepi5";
-    //Draw IP
-    using (var labelPaint = new SKPaint
+    var time = DateTime.Now.ToString("HH:mm");
+    var date = DateTime.Now.ToString("yyyy-MM-dd");
+    //Draw Time
+    var timeFontSize = fontSize + 8;
+    using (var timeLabelPaint = new SKPaint
     {
-        TextSize = ipFontSize,
+        TextSize = timeFontSize,
     })
     {
-        SKRect ipSizeRect = new();
-        labelPaint.MeasureText(ip, ref ipSizeRect);
+        SKRect timeSizeRect = new();
+        timeLabelPaint.MeasureText(time, ref timeSizeRect);
 
-        graphic.DrawText(text: ip,
+        graphic.DrawText(text: time,
             fontFamilyName: font,
-            size: ipFontSize,
+            size: timeFontSize,
             color: Color.White,
             position: new Point(
-                x: (screenWidth / 2) - ((int)ipSizeRect.Width / 2),
-                y: ((screenHeight / 4) - ((int)ipSizeRect.Height * 2) / 2) -2
+                x: (screenWidth / 2) - ((int)timeSizeRect.Width / 2),
+                y: ((screenHeight / 4) - ((int)timeSizeRect.Height * 2) / 2) - 4
             ));
 
-        SKRect hostSizeRect = new();
-        labelPaint.MeasureText(host, ref hostSizeRect);
+        using (var dateLabelPaint = new SKPaint
+        {
+            TextSize = fontSize,
+        })
+        {
+            SKRect dateSizeRect = new();
+            dateLabelPaint.MeasureText(date, ref dateSizeRect);
 
-        graphic.DrawText(text: host,
-            fontFamilyName: font,
-            size: ipFontSize,
-            color: Color.White,
-            position: new Point(
-                x: (screenWidth / 2) - ((int)hostSizeRect.Width / 2),
-                y: ((screenHeight / 4) - ((int)hostSizeRect.Height * 2) / 2) + (int)hostSizeRect.Height
-            ));
+            graphic.DrawText(text: date,
+                fontFamilyName: font,
+                size: fontSize,
+                color: Color.White,
+                position: new Point(
+                    x: (screenWidth / 2) - ((int)dateSizeRect.Width / 2),
+                    y: ((screenHeight / 4) - ((int)timeSizeRect.Height * 2) / 2) + (int)timeSizeRect.Height + 2
+                ));
+        }
     }
 
     var useDisplay = true;

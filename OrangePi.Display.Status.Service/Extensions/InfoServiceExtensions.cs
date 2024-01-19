@@ -1,7 +1,9 @@
 ﻿using Iot.Device.Graphics;
 using Iot.Device.Graphics.SkiaSharpAdapter;
 using OrangePi.Display.Status.Service.InfoServices;
+using OrangePi.Display.Status.Service.Models;
 using SkiaSharp;
+using System.Device.I2c;
 using System.Drawing;
 
 
@@ -9,6 +11,64 @@ namespace OrangePi.Display.Status.Service.Extensions
 {
     public static class InfoServiceExtensions
     {
+        public static async Task<BitmapImage> GetDisplay(
+            this IDateTimeInfoService dateTimeInfoService,
+            int screenWidth,
+            int screenHeight,
+            string fontName,
+            int fontSize
+        )
+        {
+            var image = BitmapImage.CreateBitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb);
+
+            image.Clear(Color.Black);
+            var graphic = image.GetDrawingApi();
+            var canvas = graphic.GetCanvas();
+
+            var dateTime = await dateTimeInfoService.GetValue();
+            var time = dateTime.ToString("HH:mm");
+            var date = dateTime.ToString("yyyy-MM-dd");
+
+            //Draw Time
+            var timeFontSize = fontSize + 8;
+            using (var timeLabelPaint = new SKPaint
+            {
+                TextSize = timeFontSize,
+            })
+            {
+                SKRect timeSizeRect = new();
+                timeLabelPaint.MeasureText(time, ref timeSizeRect);
+
+                graphic.DrawText(text: time,
+                    fontFamilyName: fontName,
+                    size: timeFontSize,
+                    color: Color.White,
+                    position: new Point(
+                        x: (screenWidth / 2) - ((int)timeSizeRect.Width / 2),
+                        y: ((screenHeight / 4) - ((int)timeSizeRect.Height * 2) / 2) - 4
+                    ));
+
+                using (var dateLabelPaint = new SKPaint
+                {
+                    TextSize = fontSize,
+                })
+                {
+                    SKRect dateSizeRect = new();
+                    dateLabelPaint.MeasureText(date, ref dateSizeRect);
+
+                    graphic.DrawText(text: date,
+                        fontFamilyName: fontName,
+                        size: fontSize,
+                        color: Color.White,
+                        position: new Point(
+                            x: (screenWidth / 2) - ((int)dateSizeRect.Width / 2),
+                            y: ((screenHeight / 4) - ((int)timeSizeRect.Height * 2) / 2) + (int)timeSizeRect.Height + 2
+                        ));
+                }
+            }
+            return image;
+        }
+
         public static async Task<BitmapImage> GetDisplay(
             this IHostInfoService hostInfoService,
             int screenWidth,

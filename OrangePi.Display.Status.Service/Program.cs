@@ -42,6 +42,8 @@ IHost host = Host.CreateDefaultBuilder(args)
             ).AsImplementedInterfaces());
 
         services.AddSingleton<IHostInfoService>(x => new HostInfoService(x.GetRequiredService<IProcessRunner>(), "end1"));
+        services.AddSingleton<IDateTimeInfoService, DateTimeInfoService>();
+
     })
     .ConfigureLogging(logging =>
     {
