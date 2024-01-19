@@ -62,15 +62,14 @@ namespace OrangePi.Display.Status.Service
         {
             _logger = logger;
 
+            _infoServices = infoServices;
+
             if (hostInfoService != null && !infoServices.Contains(hostInfoService))
-                _infoServices = infoServices.Prepend(hostInfoService);
-            else
-                _infoServices = infoServices;
+                _infoServices = _infoServices.Prepend(hostInfoService);
 
             if (dateTimeInfoService != null && !infoServices.Contains(dateTimeInfoService))
-                _infoServices = infoServices.Prepend(dateTimeInfoService);
-            else
-                _infoServices = infoServices;
+                _infoServices = _infoServices.Prepend(dateTimeInfoService);
+
 
             _serviceConfiguration = serviceConfiguration.Value;
             _switchConfig = switchConfig.Value;
