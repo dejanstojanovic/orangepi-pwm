@@ -1,27 +1,29 @@
-﻿using OrangePi.Common.Services;
+﻿using Iot.Device.Graphics;
+using OrangePi.Common.Services;
+using OrangePi.Display.Status.Service.Extensions;
 using OrangePi.Display.Status.Service.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrangePi.Display.Status.Service.InfoServices
 {
     public class SsdInfoService : IInfoService
     {
         private readonly IGlancesClient _glancesService;
-        private readonly IProcessRunner _processRunner;
+        private readonly ITemperatureReader _temperatureReader;
         public SsdInfoService(
             IGlancesClient glancesService,
-            IProcessRunner processRunner)
+            IEnumerable<ITemperatureReader> temperatureReaders)
         {
             _glancesService = glancesService;
-            _processRunner = processRunner;
+            _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(SsdTemperatureReader));
 
         }
 
         public string Label => "SSD";
+
+        public async Task<BitmapImage> GetInfoDisplay(int screenWidth, int screenHeight, string fontName, int fontSize)
+        {
+            return await this.GetDisplay(screenWidth, screenHeight, fontName, fontSize);
+        }
 
         public async Task<StatusValue> GetValue()
         {
@@ -36,9 +38,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             double ssdTemp = 0;
             try
             {
-                var output = await _processRunner.RunAsync("/bin/bash", "-c \"smartctl -a /dev/nvme0 | grep 'Temperature:'\"", false);
-                var value = output.Split(":").Last().Replace("Celsius", string.Empty).Trim();
-                ssdTemp = double.Parse(value);
+                ssdTemp = await _temperatureReader.GetTemperature();
             }
             catch (Exception ex)
             {

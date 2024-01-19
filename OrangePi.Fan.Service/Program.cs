@@ -23,7 +23,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddProcessRunner()
                 .AddCpuTemperatureReader()
-                .AddSsdTemperatureReader()
+                .AddSsdTemperatureReader("nvme0")
                 .AddBuzzer(buzzerConfig);
         
     })
