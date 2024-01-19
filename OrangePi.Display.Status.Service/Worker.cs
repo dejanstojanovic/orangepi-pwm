@@ -63,9 +63,7 @@ namespace OrangePi.Display.Status.Service
 
             if (hostInfoService != null && !infoServices.Contains(hostInfoService))
             {
-                var displayServicesList = infoServices.ToList();
-                displayServicesList.Prepend(hostInfoService);
-                _infoServices = displayServicesList.ToArray();
+                _infoServices = infoServices.Prepend(hostInfoService);
             }
             else
             {
