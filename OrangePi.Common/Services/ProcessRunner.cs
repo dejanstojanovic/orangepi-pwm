@@ -25,6 +25,13 @@ namespace OrangePi.Common.Services
             }
         }
 
+        public async Task<T> RunAsync<T>(string command, params string[] args)
+        {
+            var result = await RunAsync(command, args);
+            
+            return typeof(T).Conve
+        }
+
         public async Task<string> RunAsync(string command, string arguments, bool useShellExecute = false)
         {
             using (Process process = new Process())
@@ -40,6 +47,13 @@ namespace OrangePi.Common.Services
 
                 return output;
             }
+        }
+
+
+
+        public Task<T> RunAsync<T>(string command, string arguments, bool useShellExecute = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

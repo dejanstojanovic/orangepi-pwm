@@ -7,13 +7,14 @@ namespace OrangePi.Display.Status.Service.InfoServices
 {
     public class SsdInfoService : IInfoService
     {
-        private readonly IGlancesClient _glancesService;
+        private readonly IProcessRunner _processRunner;
         private readonly ITemperatureReader _temperatureReader;
+        private readonly string _drive;
         public SsdInfoService(
-            IGlancesClient glancesService,
+            IProcessRunner processRunner,
             IEnumerable<ITemperatureReader> temperatureReaders)
         {
-            _glancesService = glancesService;
+            _processRunner = processRunner;
             _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(SsdTemperatureReader));
 
         }
@@ -30,8 +31,9 @@ namespace OrangePi.Display.Status.Service.InfoServices
             double fsUsage = 0;
             try
             {
-                var fsUsageModel = await _glancesService.GetFileSystemUsage("/etc/hostname");
-                fsUsage = Math.Round(fsUsageModel.Percent, 2);
+                //var usageOutput = await _processRunner.RunAsync($"df -H {_drive} --output=avail | sed -e /Avail/d");
+                var usageOutput = await _processRunner.RunAsync($"df -H {_drive} --output=pcent | sed -e /Use%/d");
+                usageOutput = Math.Round(usageOutput.P, 2);
             }
             catch { fsUsage = 0; }
 
