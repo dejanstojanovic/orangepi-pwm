@@ -33,7 +33,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             {
                 //var usageOutput = await _processRunner.RunAsync($"df -H {_drive} --output=avail | sed -e /Avail/d");
                 var usageOutput = await _processRunner.RunAsync($"df -H {_drive} --output=pcent | sed -e /Use%/d");
-                usageOutput = Math.Round(usageOutput.P, 2);
+                usageOutput = Math.Round(usageOutput., 2);
             }
             catch { fsUsage = 0; }
 
