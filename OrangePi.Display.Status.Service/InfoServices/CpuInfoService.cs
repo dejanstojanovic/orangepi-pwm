@@ -8,13 +8,13 @@ namespace OrangePi.Display.Status.Service.InfoServices
     public class CpuInfoService : IInfoService
     {
         private readonly ITemperatureReader _temperatureReader;
-        private readonly IGlancesClient _glancesClient;
+        private readonly IProcessRunner _processRunner;
         public CpuInfoService(
             IEnumerable<ITemperatureReader> temperatureReaders,
-            IGlancesClient glancesClient)
+            IProcessRunner processRunner)
         {
             _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(CpuTemperatureReader));
-            _glancesClient = glancesClient;
+            _processRunner = processRunner;
         }
 
         public string Label => "CPU";
@@ -47,8 +47,8 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 double cpuUsage = 0;
                 try
                 {
-                    var cpuUsageModel = await _glancesClient.GetCpuUsage();
-                    cpuUsage = Math.Round(cpuUsageModel.Total, 2);
+                    cpuUsage = await _processRunner.RunAsync<double>("grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage \"%\"}' | grep -oP \"(\\d+(\\.\\d+)?(?=%))\"");
+                    cpuUsage = Math.Round(cpuUsage, 2);
                 }
                 catch { cpuUsage = 0; }
                 return cpuUsage;

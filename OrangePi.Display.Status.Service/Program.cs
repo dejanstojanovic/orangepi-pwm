@@ -1,5 +1,6 @@
 // https://learn.microsoft.com/en-us/dotnet/iot/tutorials/lcd-display
 
+using Microsoft.Extensions.DependencyInjection;
 using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
@@ -34,12 +35,13 @@ IHost host = Host.CreateDefaultBuilder(args)
             Key = hostContext.Configuration.GetValue<string>("PiHole:Key")
         });
 
-        services.Scan(selector => selector
-            .FromCallingAssembly()
-            .AddClasses(
-                classSelector =>
-                    classSelector.InNamespaces(typeof(IInfoService).Namespace).AssignableTo<IInfoService>()
-            ).AsImplementedInterfaces());
+        services.AddSingleton<IInfoService, CpuInfoService>();
+        services.AddSingleton<IInfoService, RamInfoService>();
+        services.AddSingleton<IInfoService>(x => new SsdInfoService(
+            x.GetRequiredService<IProcessRunner>(), 
+            x.GetRequiredService<IEnumerable<ITemperatureReader>>(), 
+            "/dev/nvme0n1p2"));
+        
 
         services.AddSingleton<IHostInfoService>(x => new HostInfoService(x.GetRequiredService<IProcessRunner>(), "end1"));
         services.AddSingleton<IDateTimeInfoService, DateTimeInfoService>();

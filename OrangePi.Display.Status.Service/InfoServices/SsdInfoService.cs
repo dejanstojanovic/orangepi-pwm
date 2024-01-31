@@ -9,14 +9,15 @@ namespace OrangePi.Display.Status.Service.InfoServices
     {
         private readonly IProcessRunner _processRunner;
         private readonly ITemperatureReader _temperatureReader;
-        private readonly string _drive;
+        private readonly string _driveMount;
         public SsdInfoService(
             IProcessRunner processRunner,
-            IEnumerable<ITemperatureReader> temperatureReaders)
+            IEnumerable<ITemperatureReader> temperatureReaders, 
+            string driveMount)
         {
             _processRunner = processRunner;
             _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(SsdTemperatureReader));
-
+            _driveMount = driveMount;
         }
 
         public string Label => "SSD";
@@ -31,7 +32,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             double fsUsage = 0;
             try
             {
-                fsUsage = await _processRunner.RunAsync<double>($"df -H {_drive}--output=pcent | sed -e /Use%/d | grep -oP \"(\\d+(\\.\\d+)?(?=%))\"");
+                fsUsage = await _processRunner.RunAsync<double>($"df -H {_driveMount}--output=pcent | sed -e /Use%/d | grep -oP \"(\\d+(\\.\\d+)?(?=%))\"");
             }
             catch { fsUsage = 0; }
 
