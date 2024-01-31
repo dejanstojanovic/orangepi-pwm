@@ -28,22 +28,16 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddCpuTemperatureReader();
         services.AddSsdTemperatureReader("nvme0");
 
-        services.AddGlancesService(hostContext.Configuration.GetValue<string>("Glances:Url"));
-        services.AddPiHole(new OrangePi.Common.Models.PiHoleConfig
-        {
-            Url = new Uri(hostContext.Configuration.GetValue<string>("PiHole:Url")),
-            Key = hostContext.Configuration.GetValue<string>("PiHole:Key")
-        });
-
         services.AddSingleton<IInfoService, CpuInfoService>();
         services.AddSingleton<IInfoService, RamInfoService>();
         services.AddSingleton<IInfoService>(x => new SsdInfoService(
-            x.GetRequiredService<IProcessRunner>(), 
-            x.GetRequiredService<IEnumerable<ITemperatureReader>>(), 
-            "/dev/nvme0n1p2"));
-        
+           processRunner: x.GetRequiredService<IProcessRunner>(),
+           temperatureReaders: x.GetRequiredService<IEnumerable<ITemperatureReader>>(),
+           driveMount: "/dev/nvme0n1p2"));
 
-        services.AddSingleton<IHostInfoService>(x => new HostInfoService(x.GetRequiredService<IProcessRunner>(), "end1"));
+        services.AddSingleton<IHostInfoService>(x => new HostInfoService(
+           processRunner: x.GetRequiredService<IProcessRunner>(),
+           networkAdapter: "end1"));
         services.AddSingleton<IDateTimeInfoService, DateTimeInfoService>();
 
     })
