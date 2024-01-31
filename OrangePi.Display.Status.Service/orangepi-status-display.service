@@ -1,8 +1,7 @@
 [Unit]
 Description=Run status display
-After=docker.service
-BindsTo=docker.service
-ReloadPropagatedFrom=docker.service
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
 ExecStart=%h/.dotnet/dotnet /etc/orangepi-status-display/OrangePi.Display.Status.Service.dll
