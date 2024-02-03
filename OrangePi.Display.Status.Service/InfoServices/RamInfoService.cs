@@ -32,7 +32,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 memUsage = await this._processRunner.RunAsync<double>("/bin/bash", "-c \"free -m | grep Mem | awk '{print ($3/$2)*100}'\"");
                 memUsage = Math.Round(memUsage, 1);
                 var usedGb = await this._processRunner.RunAsync<double>("/bin/bash", " -c \"free -m | grep Mem | awk '{print ($3/1000)}'\"");
-                usedGbText = $"{Math.Round(usedGb, 1)} GB";
+                usedGbText = $"{Math.Round(usedGb, 2)} GB";
             }
             catch (Exception ex)
             {
@@ -41,7 +41,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             }
 
             return new StatusValue(
-                valueText: $"{memUsage.ToString("0.00")}%",
+                valueText: $"{memUsage.ToString("0.0")}%",
                 value: memUsage,
                 note: usedGbText);
         }

@@ -36,6 +36,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             try
             {
                 fsUsage = await _processRunner.RunAsync<double>("/bin/bash", $"-c \"df -H {_driveMount} --output=pcent | sed -e /Use%/d | grep -oP '(\\d+(\\.\\d+)?(?=%))'\"");
+                fsUsage = Math.Round(fsUsage, 2);
             }
             catch (Exception ex)
             {
@@ -55,7 +56,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             }
 
             return new StatusValue(
-                valueText: $"{fsUsage.ToString("0.00")}%",
+                valueText: $"{fsUsage.ToString("0.0")}%",
                 value: fsUsage,
                 note: $"{ssdTemp}°C");
         }

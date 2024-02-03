@@ -36,7 +36,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 try
                 {
                     cpuTemp = await _temperatureReader.GetTemperature();
-                    cpuTemp = Math.Round(cpuTemp, 1);
+                    cpuTemp = Math.Round(cpuTemp, 2);
                 }
                 catch (Exception ex)
                 {
@@ -54,7 +54,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 {
                     var folder = Path.GetDirectoryName(this.GetType().Assembly.Location);
                     var script = Path.Combine(folder, "cpu_usage.sh");
-                    var output = await _processRunner.RunAsync<double>(command: script, workingFolder:folder);
+                    cpuUsage = await _processRunner.RunAsync<double>("/bin/bash", script);
                     cpuUsage = Math.Round(cpuUsage, 2);
                 }
                 catch (Exception ex)
@@ -69,7 +69,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             await Task.WhenAll<double>(tempTask, usageTask);
 
             return new StatusValue(
-                valueText: $"{usageTask.Result.ToString("0.00")}%",
+                valueText: $"{usageTask.Result.ToString("0.0")}%",
                 value: usageTask.Result,
                 note: $"{tempTask.Result}°C");
 
