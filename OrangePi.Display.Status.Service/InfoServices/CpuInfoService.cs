@@ -52,7 +52,8 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 double cpuUsage = 0;
                 try
                 {
-                    cpuUsage = await _processRunner.RunAsync<double>("grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage \"%\"}' | grep -oP \"(\\d+(\\.\\d+)?(?=%))\"");
+                    var command = "-c \"grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage \"%\"}' | grep -oP '(\\d+(\\.\\d+)?(?=%))'\"";
+                    var output = await _processRunner.RunAsync("/bin/bash", command);
                     cpuUsage = Math.Round(cpuUsage, 2);
                 }
                 catch (Exception ex)
@@ -67,7 +68,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             await Task.WhenAll<double>(tempTask, usageTask);
 
             return new StatusValue(
-                valueText: $"{usageTask.Result}%",
+                valueText: $"{usageTask.Result.ToString("0.00")}%",
                 value: usageTask.Result,
                 note: $"{tempTask.Result}°C");
 
