@@ -20,6 +20,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
         services.AddOptions();
+        services.AddLogging();
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
         services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
         services.AddHostedService<Worker>();

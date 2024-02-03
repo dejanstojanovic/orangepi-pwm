@@ -10,11 +10,14 @@ namespace OrangePi.Display.Status.Service.InfoServices
         private readonly IProcessRunner _processRunner;
         private readonly ITemperatureReader _temperatureReader;
         private readonly string _driveMount;
+        private readonly ILogger<SsdInfoService> _logger;
         public SsdInfoService(
             IProcessRunner processRunner,
             IEnumerable<ITemperatureReader> temperatureReaders, 
-            string driveMount)
+            string driveMount,
+            ILogger<SsdInfoService> logger)
         {
+            _logger = logger;
             _processRunner = processRunner;
             _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(SsdTemperatureReader));
             _driveMount = driveMount;
@@ -34,7 +37,11 @@ namespace OrangePi.Display.Status.Service.InfoServices
             {
                 fsUsage = await _processRunner.RunAsync<double>($"df -H {_driveMount}--output=pcent | sed -e /Use%/d | grep -oP \"(\\d+(\\.\\d+)?(?=%))\"");
             }
-            catch { fsUsage = 0; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                fsUsage = 0; 
+            }
 
             double ssdTemp = 0;
             try
@@ -43,10 +50,9 @@ namespace OrangePi.Display.Status.Service.InfoServices
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERR: {ex.Message}");
+                _logger.LogError(ex.Message);
                 ssdTemp = 0;
             }
-
 
             return new StatusValue(
                 valueText: $"{fsUsage}%",
