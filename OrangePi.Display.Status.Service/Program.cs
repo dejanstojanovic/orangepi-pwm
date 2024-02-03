@@ -28,17 +28,17 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddCpuTemperatureReader();
         services.AddSsdTemperatureReader("nvme0");
 
-        services.AddSingleton<IInfoService, CpuInfoService>();
-        services.AddSingleton<IInfoService, RamInfoService>();
-        services.AddSingleton<IInfoService>(x => new SsdInfoService(
+        services.AddTransient<IInfoService, CpuInfoService>();
+        services.AddTransient<IInfoService, RamInfoService>();
+        services.AddTransient<IInfoService>(x => new SsdInfoService(
            processRunner: x.GetRequiredService<IProcessRunner>(),
            temperatureReaders: x.GetRequiredService<IEnumerable<ITemperatureReader>>(),
            driveMount: "/dev/nvme0n1p2"));
 
-        services.AddSingleton<IHostInfoService>(x => new HostInfoService(
+        services.AddTransient<IHostInfoService>(x => new HostInfoService(
            processRunner: x.GetRequiredService<IProcessRunner>(),
            networkAdapter: "end1"));
-        services.AddSingleton<IDateTimeInfoService, DateTimeInfoService>();
+        services.AddTransient<IDateTimeInfoService, DateTimeInfoService>();
 
     })
     .ConfigureLogging(logging =>
