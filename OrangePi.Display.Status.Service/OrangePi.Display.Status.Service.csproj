@@ -22,4 +22,10 @@
     <ProjectReference Include="..\OrangePi.Common\OrangePi.Common.csproj" />
     <ProjectReference Include="..\SkiaSharpAdapter\SkiaSharpAdapter.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="cpu_usage.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

@@ -52,8 +52,9 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 double cpuUsage = 0;
                 try
                 {
-                    var command = "-c \"grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage \"%\"}' | grep -oP '(\\d+(\\.\\d+)?(?=%))'\"";
-                    var output = await _processRunner.RunAsync("/bin/bash", command);
+                    var folder = Path.GetDirectoryName(this.GetType().Assembly.Location);
+                    var script = Path.Combine(folder, "cpu_usage.sh");
+                    var output = await _processRunner.RunAsync<double>(command: script, workingFolder:folder);
                     cpuUsage = Math.Round(cpuUsage, 2);
                 }
                 catch (Exception ex)
