@@ -37,10 +37,10 @@ IHost host = Host.CreateDefaultBuilder(args)
            driveMount: "/dev/nvme0n1p2",
            logger: x.GetRequiredService<ILogger<SsdInfoService>>()));
 
-        services.AddTransient<IHostInfoService>(x => new HostInfoService(
-           processRunner: x.GetRequiredService<IProcessRunner>(),
-           networkAdapter: "end1"));
-        services.AddTransient<IDateTimeInfoService, DateTimeInfoService>();
+        //services.AddTransient<IHostInfoService>(x => new HostInfoService(
+        //   processRunner: x.GetRequiredService<IProcessRunner>(),
+        //   networkAdapter: "end1"));
+        //services.AddTransient<IDateTimeInfoService, DateTimeInfoService>();
 
     })
     .ConfigureLogging(logging =>
