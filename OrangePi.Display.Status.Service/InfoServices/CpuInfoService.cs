@@ -8,20 +8,24 @@ namespace OrangePi.Display.Status.Service.InfoServices
     public class CpuInfoService : IInfoService
     {
         private readonly ITemperatureReader _temperatureReader;
-        private readonly IGlancesClient _glancesClient;
+        private readonly IProcessRunner _processRunner;
+        private readonly ILogger<CpuInfoService> _logger;
         public CpuInfoService(
             IEnumerable<ITemperatureReader> temperatureReaders,
-            IGlancesClient glancesClient)
+            IProcessRunner processRunner,
+            ILogger<CpuInfoService> logger)
         {
             _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(CpuTemperatureReader));
-            _glancesClient = glancesClient;
+            _processRunner = processRunner;
+            _logger = logger;
+
         }
 
         public string Label => "CPU";
 
         public async Task<BitmapImage> GetInfoDisplay(int screenWidth, int screenHeight, string fontName, int fontSize)
         {
-            return await this.GetDisplay(screenWidth,screenHeight,fontName, fontSize);
+            return await this.GetDisplay(screenWidth, screenHeight, fontName, fontSize);
         }
 
         public async Task<StatusValue> GetValue()
@@ -32,10 +36,11 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 try
                 {
                     cpuTemp = await _temperatureReader.GetTemperature();
-                    cpuTemp = Math.Round(cpuTemp, 1);
+                    cpuTemp = Math.Round(cpuTemp, 2);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger.LogError(ex.Message);
                     cpuTemp = 0;
                 }
 
@@ -47,10 +52,16 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 double cpuUsage = 0;
                 try
                 {
-                    var cpuUsageModel = await _glancesClient.GetCpuUsage();
-                    cpuUsage = Math.Round(cpuUsageModel.Total, 2);
+                    var folder = Path.GetDirectoryName(this.GetType().Assembly.Location);
+                    var script = Path.Combine(folder, "cpu_usage.sh");
+                    cpuUsage = await _processRunner.RunAsync<double>("/bin/bash", script);
+                    cpuUsage = Math.Round(cpuUsage, 2);
                 }
-                catch { cpuUsage = 0; }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    cpuUsage = 0;
+                }
                 return cpuUsage;
             });
 
@@ -58,7 +69,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             await Task.WhenAll<double>(tempTask, usageTask);
 
             return new StatusValue(
-                valueText: $"{usageTask.Result}%",
+                valueText: $"{usageTask.Result.ToString("0.0")}%",
                 value: usageTask.Result,
                 note: $"{tempTask.Result}°C");
 

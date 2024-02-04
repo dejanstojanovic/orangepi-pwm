@@ -1,5 +1,6 @@
 // https://learn.microsoft.com/en-us/dotnet/iot/tutorials/lcd-display
 
+using Microsoft.Extensions.DependencyInjection;
 using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
@@ -19,6 +20,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
         services.AddOptions();
+        services.AddLogging();
         services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
         services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
         services.AddHostedService<Worker>();
@@ -27,22 +29,18 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddCpuTemperatureReader();
         services.AddSsdTemperatureReader("nvme0");
 
-        services.AddGlancesService(hostContext.Configuration.GetValue<string>("Glances:Url"));
-        services.AddPiHole(new OrangePi.Common.Models.PiHoleConfig
-        {
-            Url = new Uri(hostContext.Configuration.GetValue<string>("PiHole:Url")),
-            Key = hostContext.Configuration.GetValue<string>("PiHole:Key")
-        });
+        services.AddTransient<IInfoService, CpuInfoService>();
+        services.AddTransient<IInfoService, RamInfoService>();
+        services.AddTransient<IInfoService>(x => new SsdInfoService(
+           processRunner: x.GetRequiredService<IProcessRunner>(),
+           temperatureReaders: x.GetRequiredService<IEnumerable<ITemperatureReader>>(),
+           driveMount: "/dev/nvme0n1p2",
+           logger: x.GetRequiredService<ILogger<SsdInfoService>>()));
 
-        services.Scan(selector => selector
-            .FromCallingAssembly()
-            .AddClasses(
-                classSelector =>
-                    classSelector.InNamespaces(typeof(IInfoService).Namespace).AssignableTo<IInfoService>()
-            ).AsImplementedInterfaces());
-
-        services.AddSingleton<IHostInfoService>(x => new HostInfoService(x.GetRequiredService<IProcessRunner>(), "end1"));
-        services.AddSingleton<IDateTimeInfoService, DateTimeInfoService>();
+        services.AddTransient<IHostInfoService>(x => new HostInfoService(
+           processRunner: x.GetRequiredService<IProcessRunner>(),
+           networkAdapter: "end1"));
+        services.AddTransient<IDateTimeInfoService, DateTimeInfoService>();
 
     })
     .ConfigureLogging(logging =>

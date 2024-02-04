@@ -7,15 +7,20 @@ namespace OrangePi.Display.Status.Service.InfoServices
 {
     public class SsdInfoService : IInfoService
     {
-        private readonly IGlancesClient _glancesService;
+        private readonly IProcessRunner _processRunner;
         private readonly ITemperatureReader _temperatureReader;
+        private readonly string _driveMount;
+        private readonly ILogger<SsdInfoService> _logger;
         public SsdInfoService(
-            IGlancesClient glancesService,
-            IEnumerable<ITemperatureReader> temperatureReaders)
+            IProcessRunner processRunner,
+            IEnumerable<ITemperatureReader> temperatureReaders,
+            string driveMount,
+            ILogger<SsdInfoService> logger)
         {
-            _glancesService = glancesService;
+            _logger = logger;
+            _processRunner = processRunner;
             _temperatureReader = temperatureReaders.Single(r => r.GetType() == typeof(SsdTemperatureReader));
-
+            _driveMount = driveMount;
         }
 
         public string Label => "SSD";
@@ -30,10 +35,14 @@ namespace OrangePi.Display.Status.Service.InfoServices
             double fsUsage = 0;
             try
             {
-                var fsUsageModel = await _glancesService.GetFileSystemUsage("/etc/hostname");
-                fsUsage = Math.Round(fsUsageModel.Percent, 2);
+                fsUsage = await _processRunner.RunAsync<double>("/bin/bash", $"-c \"df -H {_driveMount} --output=pcent | sed -e /Use%/d | grep -oP '(\\d+(\\.\\d+)?(?=%))'\"");
+                fsUsage = Math.Round(fsUsage, 2);
             }
-            catch { fsUsage = 0; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                fsUsage = 0;
+            }
 
             double ssdTemp = 0;
             try
@@ -42,13 +51,12 @@ namespace OrangePi.Display.Status.Service.InfoServices
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERR: {ex.Message}");
+                _logger.LogError(ex.Message);
                 ssdTemp = 0;
             }
 
-
             return new StatusValue(
-                valueText: $"{fsUsage}%",
+                valueText: $"{fsUsage.ToString("0.0")}%",
                 value: fsUsage,
                 note: $"{ssdTemp}°C");
         }

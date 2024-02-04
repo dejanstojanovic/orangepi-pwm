@@ -7,10 +7,13 @@ namespace OrangePi.Display.Status.Service.InfoServices
 {
     public class RamInfoService : IInfoService
     {
-        private readonly IGlancesClient _glancesService;
-        public RamInfoService(IGlancesClient glancesService)
+        private readonly IProcessRunner _processRunner;
+        private readonly ILogger<RamInfoService> _logger;
+        public RamInfoService(IProcessRunner processRunner, ILogger<RamInfoService> logger)
         {
-            _glancesService = glancesService;
+            _processRunner = processRunner;
+            _logger = logger;
+
         }
 
         public string Label => "RAM";
@@ -26,14 +29,19 @@ namespace OrangePi.Display.Status.Service.InfoServices
             string? usedGbText = null;
             try
             {
-                var memUsageModel = await _glancesService.GetMemoryUsage();
-                memUsage = Math.Round(memUsageModel.Percent, 2);
-                usedGbText = $"{Math.Round((memUsageModel.Used * 1.00) / 1000000000, 2)} GB";
+                memUsage = await this._processRunner.RunAsync<double>("/bin/bash", "-c \"free -m | grep Mem | awk '{print ($3/$2)*100}'\"");
+                memUsage = Math.Round(memUsage, 1);
+                var usedGb = await this._processRunner.RunAsync<double>("/bin/bash", " -c \"free -m | grep Mem | awk '{print ($3/1000)}'\"");
+                usedGbText = $"{Math.Round(usedGb, 2)} GB";
             }
-            catch { memUsage = 0; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                memUsage = 0;
+            }
 
             return new StatusValue(
-                valueText: $"{memUsage}%",
+                valueText: $"{memUsage.ToString("0.0")}%",
                 value: memUsage,
                 note: usedGbText);
         }

@@ -1,14 +1,9 @@
-using Iot.Device.Graphics;
 using Iot.Device.Graphics.SkiaSharpAdapter;
 using Microsoft.Extensions.Options;
-using OrangePi.Common.Services;
-using OrangePi.Display.Status.Service.Extensions;
 using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
-using SkiaSharp;
 using System.Device.Gpio;
 using System.Device.I2c;
-using System.Drawing;
 
 namespace OrangePi.Display.Status.Service
 {
@@ -50,26 +45,21 @@ namespace OrangePi.Display.Status.Service
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SwitchConfig _switchConfig;
         readonly System.Timers.Timer _timer;
-        readonly IEnumerable<IDisplayInfoService> _infoServices;
+        readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
             IOptions<SwitchConfig> switchConfig,
-            IEnumerable<IDisplayInfoService> infoServices,
+            IEnumerable<IInfoService> infoServices,
             IHostInfoService hostInfoService,
             IDateTimeInfoService dateTimeInfoService
             )
         {
             _logger = logger;
+            _displayInfoServices =  infoServices.Select(s=> s as IDisplayInfoService).ToList();
 
-            _infoServices = infoServices;
-
-            if (hostInfoService != null && !infoServices.Contains(hostInfoService))
-                _infoServices = _infoServices.Prepend(hostInfoService);
-
-            if (dateTimeInfoService != null && !infoServices.Contains(dateTimeInfoService))
-                _infoServices = _infoServices.Prepend(dateTimeInfoService);
-
+            _displayInfoServices = _displayInfoServices.Prepend(hostInfoService);
+            _displayInfoServices = _displayInfoServices.Prepend(dateTimeInfoService);
 
             _serviceConfiguration = serviceConfiguration.Value;
             _switchConfig = switchConfig.Value;
@@ -132,7 +122,7 @@ namespace OrangePi.Display.Status.Service
 
                         ssd1306.EnableDisplay(true);
 
-                        foreach (var infoService in _infoServices)
+                        foreach (var infoService in _displayInfoServices)
                         {
                             if (stoppingToken.IsCancellationRequested)
                                 break;

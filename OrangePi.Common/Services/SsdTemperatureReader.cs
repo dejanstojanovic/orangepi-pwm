@@ -14,7 +14,7 @@
 
         public async Task<double> GetTemperature()
         {
-            var output = await _processRunner.RunAsync("/bin/bash", $"-c \"smartctl -a /dev/{_drive} | grep 'Temperature:'\"", false);
+            var output = await _processRunner.RunAsync("/bin/bash", $"-c \"smartctl -a /dev/{_drive} | grep 'Temperature:'\"");
             var value = output.Split(":").Last().Replace("Celsius", string.Empty).Trim();
             return double.Parse(value);
         }
