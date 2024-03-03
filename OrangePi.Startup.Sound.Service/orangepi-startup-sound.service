@@ -1,0 +1,13 @@
+[Unit]
+Description=Play sound on startup and shutdown
+
+[Service]
+ExecStart=%h/.dotnet/dotnet /etc/orangepi-startup-sound/OrangePi.Startup.Sound.Service.dll
+WorkingDirectory=/etc/orangepi-startup-sound
+User=root
+Group=0
+Type=simple
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

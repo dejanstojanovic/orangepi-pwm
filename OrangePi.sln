@@ -32,7 +32,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiezzoSample", "PiezzoSampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MotionSensorSample", "MotionSensorSample\MotionSensorSample.csproj", "{EC1D7FCC-3592-4314-A56A-D7BEEFE63222}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingSample", "DrawingSample\DrawingSample.csproj", "{42CF9300-F056-4E38-8205-D31D138A57F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrawingSample", "DrawingSample\DrawingSample.csproj", "{42CF9300-F056-4E38-8205-D31D138A57F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrangePi.Startup.Sound.Service", "OrangePi.Startup.Sound.Service\OrangePi.Startup.Sound.Service.csproj", "{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -122,6 +124,14 @@ Global
 		{42CF9300-F056-4E38-8205-D31D138A57F2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42CF9300-F056-4E38-8205-D31D138A57F2}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{42CF9300-F056-4E38-8205-D31D138A57F2}.Release|ARM64.Build.0 = Release|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +146,7 @@ Global
 		{18AD74DD-40BC-46C8-854E-B81015CDBCC8} = {90BE89A9-AB13-435F-97D9-315DD08C0B33}
 		{EC1D7FCC-3592-4314-A56A-D7BEEFE63222} = {90BE89A9-AB13-435F-97D9-315DD08C0B33}
 		{42CF9300-F056-4E38-8205-D31D138A57F2} = {90BE89A9-AB13-435F-97D9-315DD08C0B33}
+		{6CCB72BA-BCA6-4AA7-8D61-72171839AD36} = {1A86BEC0-CE90-4BF5-B348-3AFCD03675CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5262D94B-A432-4F44-8EA1-05577AF1C085}
