@@ -10,6 +10,7 @@ namespace OrangePi.Startup.Sound.Service
         private readonly ILogger<Worker> _logger;
         private readonly IProcessRunner _processRunner;
         private readonly SoundsConfiguration _soundsConfiguration;
+        private readonly string _currentFolder;
         public Worker(
             IProcessRunner processRunner,
             ILogger<Worker> logger,
@@ -18,22 +19,25 @@ namespace OrangePi.Startup.Sound.Service
             _processRunner = processRunner;
             _logger = logger;
             _soundsConfiguration = soundsConfiguration.Value;
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        }
+
+        public override async Task StartAsync(CancellationToken cancellationToken)
+        {
+            if (_soundsConfiguration.Startup.Enabled)
+                await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, _soundsConfiguration.Startup.Filename);
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+
+            if (_soundsConfiguration.Shutdown.Enabled)
+                await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, _soundsConfiguration.Shutdown.Filename);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            if (_soundsConfiguration.Startup.Enabled)
-                await _processRunner.RunAsync(command: "mplayer", workingFolder: currentFolder, _soundsConfiguration.Startup.Filename);
-
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay(1000, stoppingToken);
-            }
-
-            if (_soundsConfiguration.Shutdown.Enabled)
-                await _processRunner.RunAsync(command: "mplayer", workingFolder: currentFolder, _soundsConfiguration.Shutdown.Filename);
         }
     }
 }
