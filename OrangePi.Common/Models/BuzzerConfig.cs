@@ -8,8 +8,8 @@ namespace OrangePi.Common.Models
 {
     public class BuzzerConfig
     {
-        public int GPIO { get; set; }
-        public int PWMFrequency { get; set; }
-        public double PWMDuty { get; set; }
+        public int PinNumber { get; set; }
+        public double Frequency { get; set; }
+        public int Duration { get; set; }
     }
 }

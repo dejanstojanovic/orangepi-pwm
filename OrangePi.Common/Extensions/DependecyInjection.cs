@@ -14,9 +14,9 @@ namespace OrangePi.Common.Extensions
             return services;
         }
 
-        public static IServiceCollection AddBuzzer(this IServiceCollection services, int gpio, int pwmFrequency, double pwmDuty)
+        public static IServiceCollection AddBuzzer(this IServiceCollection services, int pin)
         {
-            services.AddSingleton<IBuzzerService>(new BuzzerService(gpio, pwmFrequency, pwmDuty));
+            services.AddSingleton<IBuzzerService>(new BuzzerService(pin));
             return services;
         }
 
