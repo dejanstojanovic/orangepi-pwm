@@ -1,9 +1,11 @@
 using Iot.Device.Graphics.SkiaSharpAdapter;
 using Microsoft.Extensions.Options;
+using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
 using System.Device.Gpio;
 using System.Device.I2c;
+using UnitsNet;
 
 namespace OrangePi.Display.Status.Service
 {
@@ -44,13 +46,17 @@ namespace OrangePi.Display.Status.Service
         private readonly ILogger<Worker> _logger;
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SwitchConfig _switchConfig;
+        private readonly SoundConfiguration _soundConfiguration;
+        private readonly IProcessRunner _processRunner;
         readonly System.Timers.Timer _timer;
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
             IOptions<SwitchConfig> switchConfig,
-            IEnumerable<IInfoService> infoServices
+            IOptions<SoundConfiguration> soundConfig,
+            IEnumerable<IInfoService> infoServices,
+            IProcessRunner processRunner
             //IHostInfoService hostInfoService,
             //IDateTimeInfoService dateTimeInfoService
             )
@@ -63,7 +69,8 @@ namespace OrangePi.Display.Status.Service
 
             _serviceConfiguration = serviceConfiguration.Value;
             _switchConfig = switchConfig.Value;
-
+            _soundConfiguration = soundConfig.Value;
+            _processRunner = processRunner;
             _timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
             _timer.Elapsed += timer_Elapsed;
             SkiaSharpAdapter.Register();
@@ -119,6 +126,9 @@ namespace OrangePi.Display.Status.Service
                             ssd1306.EnableDisplay(false);
                             continue;
                         }
+
+                        if(!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                            await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Startup.Filename);
 
                         ssd1306.EnableDisplay(true);
 

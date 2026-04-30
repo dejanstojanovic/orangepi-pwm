@@ -1,6 +1,5 @@
 using OrangePi.Startup.Sound.Service;
 using OrangePi.Common.Extensions;
-using OrangePi.Common.Models;
 using OrangePi.Startup.Sound.Service.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
