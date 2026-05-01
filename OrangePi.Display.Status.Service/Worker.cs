@@ -43,7 +43,6 @@ namespace OrangePi.Display.Status.Service
         readonly int screenHeight = 64;
         readonly string fontName = "DejaVu Sans Bold";
         readonly int fontSize = 12;
-        readonly int volume = 80;
 
         private readonly ILogger<Worker> _logger;
         private readonly ServiceConfiguration _serviceConfiguration;
@@ -85,7 +84,7 @@ namespace OrangePi.Display.Status.Service
             Switch = false;
         }
 
-        void MonitorSwitch(CancellationToken stoppingToken)
+        async Task MonitorSwitch(CancellationToken stoppingToken)
         {
             using (var controller = new GpioController())
             {
@@ -95,10 +94,14 @@ namespace OrangePi.Display.Status.Service
                     var value = pin.Read();
                     if (value == PinValue.High)
                     {
+                        if (!this.Switch && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                            await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
+
+
                         this.Switch = true;
                     }
 
-                    Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
+                    await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
                 }
             }
         }
@@ -106,8 +109,7 @@ namespace OrangePi.Display.Status.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var switchMonitor = Task.Run(() => MonitorSwitch(stoppingToken));
-
+            var switchMonitor = Task.Run(async () => await MonitorSwitch(stoppingToken));
             var pause = _serviceConfiguration.IntervalTimeSpan;
 
             //https://pinout.xyz/pinout/i2c
@@ -129,9 +131,6 @@ namespace OrangePi.Display.Status.Service
                             ssd1306.EnableDisplay(false);
                             continue;
                         }
-
-                        if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
-                            await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", volume.ToString(), _soundConfiguration.ActivationSound);
 
                         ssd1306.EnableDisplay(true);
 
