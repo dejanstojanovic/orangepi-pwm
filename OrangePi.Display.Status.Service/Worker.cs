@@ -5,6 +5,7 @@ using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
 using System.Device.Gpio;
 using System.Device.I2c;
+using System.Reflection;
 using UnitsNet;
 
 namespace OrangePi.Display.Status.Service
@@ -38,10 +39,11 @@ namespace OrangePi.Display.Status.Service
         }
         #endregion
 
-        int screenWidth = 128;
-        int screenHeight = 64;
-        string fontName = "DejaVu Sans Bold";
-        int fontSize = 12;
+        readonly int screenWidth = 128;
+        readonly int screenHeight = 64;
+        readonly string fontName = "DejaVu Sans Bold";
+        readonly int fontSize = 12;
+        readonly int volume = 80;
 
         private readonly ILogger<Worker> _logger;
         private readonly ServiceConfiguration _serviceConfiguration;
@@ -50,6 +52,7 @@ namespace OrangePi.Display.Status.Service
         private readonly IProcessRunner _processRunner;
         readonly System.Timers.Timer _timer;
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
+        readonly string _currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
@@ -62,7 +65,7 @@ namespace OrangePi.Display.Status.Service
             )
         {
             _logger = logger;
-            _displayInfoServices =  infoServices.Select(s=> s as IDisplayInfoService).ToList();
+            _displayInfoServices = infoServices.Select(s => s as IDisplayInfoService).ToList();
 
             //_displayInfoServices = _displayInfoServices.Prepend(hostInfoService);
             //_displayInfoServices = _displayInfoServices.Prepend(dateTimeInfoService);
@@ -127,8 +130,8 @@ namespace OrangePi.Display.Status.Service
                             continue;
                         }
 
-                        //if(!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
-                        //    await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Startup.Filename);
+                        if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                            await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", volume.ToString(), _soundConfiguration.ActivationSound);
 
                         ssd1306.EnableDisplay(true);
 

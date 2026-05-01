@@ -20,7 +20,7 @@ namespace OrangePi.Startup.Sound.Service
             _processRunner = processRunner;
             _logger = logger;
             _soundsConfiguration = soundsConfiguration.Value;
-            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            _currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
