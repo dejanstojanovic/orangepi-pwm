@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text;
 
 namespace OrangePi.Common.Services
 {
@@ -66,8 +65,6 @@ namespace OrangePi.Common.Services
             return await WaitForOutputAsync(command, null, arguments);
         }
 
-
-
         public async Task<T> WaitForOutputAsync<T>(string command, string arguments)
         {
             var result = await WaitForOutputAsync(command, arguments);
@@ -84,6 +81,16 @@ namespace OrangePi.Common.Services
         {
             var result = await WaitForOutputAsync(command, workingFolder, arguments);
             return (T)System.Convert.ChangeType(result, typeof(T));
+        }
+
+        public async Task RunAsync(string command, params string[] args)
+        {
+            await RunAsync(command, null, args);
+        }
+
+        public async Task RunAsync(string command, string arguments)
+        {
+            await RunAsync(command, null, arguments);
         }
 
         public async Task RunAsync(string command, string workingFolder, params string[] args)
