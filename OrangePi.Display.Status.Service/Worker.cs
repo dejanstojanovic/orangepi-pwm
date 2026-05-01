@@ -1,9 +1,12 @@
 using Iot.Device.Graphics.SkiaSharpAdapter;
 using Microsoft.Extensions.Options;
+using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
 using System.Device.Gpio;
 using System.Device.I2c;
+using System.Reflection;
+using UnitsNet;
 
 namespace OrangePi.Display.Status.Service
 {
@@ -36,34 +39,40 @@ namespace OrangePi.Display.Status.Service
         }
         #endregion
 
-        int screenWidth = 128;
-        int screenHeight = 64;
-        string fontName = "DejaVu Sans Bold";
-        int fontSize = 12;
+        readonly int screenWidth = 128;
+        readonly int screenHeight = 64;
+        readonly string fontName = "DejaVu Sans Bold";
+        readonly int fontSize = 12;
 
         private readonly ILogger<Worker> _logger;
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SwitchConfig _switchConfig;
+        private readonly SoundConfiguration _soundConfiguration;
+        private readonly IProcessRunner _processRunner;
         readonly System.Timers.Timer _timer;
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
+        readonly string _currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
             IOptions<SwitchConfig> switchConfig,
-            IEnumerable<IInfoService> infoServices
+            IOptions<SoundConfiguration> soundConfig,
+            IEnumerable<IInfoService> infoServices,
+            IProcessRunner processRunner
             //IHostInfoService hostInfoService,
             //IDateTimeInfoService dateTimeInfoService
             )
         {
             _logger = logger;
-            _displayInfoServices =  infoServices.Select(s=> s as IDisplayInfoService).ToList();
+            _displayInfoServices = infoServices.Select(s => s as IDisplayInfoService).ToList();
 
             //_displayInfoServices = _displayInfoServices.Prepend(hostInfoService);
             //_displayInfoServices = _displayInfoServices.Prepend(dateTimeInfoService);
 
             _serviceConfiguration = serviceConfiguration.Value;
             _switchConfig = switchConfig.Value;
-
+            _soundConfiguration = soundConfig.Value;
+            _processRunner = processRunner;
             _timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
             _timer.Elapsed += timer_Elapsed;
             SkiaSharpAdapter.Register();
@@ -75,7 +84,7 @@ namespace OrangePi.Display.Status.Service
             Switch = false;
         }
 
-        void MonitorSwitch(CancellationToken stoppingToken)
+        async Task MonitorSwitch(CancellationToken stoppingToken)
         {
             using (var controller = new GpioController())
             {
@@ -85,10 +94,13 @@ namespace OrangePi.Display.Status.Service
                     var value = pin.Read();
                     if (value == PinValue.High)
                     {
+                        if (!this.Switch && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                            await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
+
                         this.Switch = true;
                     }
 
-                    Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
+                    await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
                 }
             }
         }
@@ -96,8 +108,10 @@ namespace OrangePi.Display.Status.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var switchMonitor = Task.Run(() => MonitorSwitch(stoppingToken));
+            if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
 
+            var switchMonitor = Task.Run(async () => await MonitorSwitch(stoppingToken));
             var pause = _serviceConfiguration.IntervalTimeSpan;
 
             //https://pinout.xyz/pinout/i2c

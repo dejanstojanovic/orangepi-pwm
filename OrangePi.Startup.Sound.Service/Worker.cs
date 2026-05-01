@@ -10,8 +10,8 @@ namespace OrangePi.Startup.Sound.Service
         private readonly ILogger<Worker> _logger;
         private readonly IProcessRunner _processRunner;
         private readonly SoundsConfiguration _soundsConfiguration;
-        private readonly string _currentFolder;
         private readonly int _volume = 80;
+        private readonly string _currentFolder;
         public Worker(
             IProcessRunner processRunner,
             ILogger<Worker> logger,
@@ -26,14 +26,14 @@ namespace OrangePi.Startup.Sound.Service
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
             if (_soundsConfiguration.Startup.Enabled)
-                await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Startup.Filename);
+                await _processRunner.WaitForOutputAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Startup.Filename);
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
 
             if (_soundsConfiguration.Shutdown.Enabled)
-                await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Shutdown.Filename);
+                await _processRunner.WaitForOutputAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Startup.Filename);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -27,7 +27,7 @@ namespace OrangePi.Common.Services
             }
             else
             {
-                var temeratureCheckOutput = await _processRunner.RunAsync("cat", "/sys/class/thermal/thermal_zone0/temp");
+                var temeratureCheckOutput = await _processRunner.WaitForOutputAsync("cat", "/sys/class/thermal/thermal_zone0/temp");
                 if (double.TryParse(temeratureCheckOutput, out double temperatureCheckValue) &&
                     temperatureCheckValue > 0)
                 {

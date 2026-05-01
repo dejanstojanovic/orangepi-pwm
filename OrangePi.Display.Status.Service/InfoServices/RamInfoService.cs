@@ -29,9 +29,9 @@ namespace OrangePi.Display.Status.Service.InfoServices
             string? usedGbText = null;
             try
             {
-                memUsage = await this._processRunner.RunAsync<double>("/bin/bash", "-c \"free -m | grep Mem | awk '{print ($3/$2)*100}'\"");
+                memUsage = await this._processRunner.WaitForOutputAsync<double>("/bin/bash", "-c \"free -m | grep Mem | awk '{print ($3/$2)*100}'\"");
                 memUsage = Math.Round(memUsage, 1);
-                var usedGb = await this._processRunner.RunAsync<double>("/bin/bash", " -c \"free -m | grep Mem | awk '{print ($3/1000)}'\"");
+                var usedGb = await this._processRunner.WaitForOutputAsync<double>("/bin/bash", " -c \"free -m | grep Mem | awk '{print ($3/1000)}'\"");
                 usedGbText = $"{Math.Round(usedGb, 2)} GB";
             }
             catch (Exception ex)

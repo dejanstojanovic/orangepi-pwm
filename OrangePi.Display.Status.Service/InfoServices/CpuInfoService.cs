@@ -54,7 +54,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
                 {
                     var folder = Path.GetDirectoryName(this.GetType().Assembly.Location);
                     var script = Path.Combine(folder, "cpu_usage.sh");
-                    cpuUsage = await _processRunner.RunAsync<double>("/bin/bash", script);
+                    cpuUsage = await _processRunner.WaitForOutputAsync<double>("/bin/bash", script);
                     cpuUsage = Math.Round(cpuUsage, 2);
                 }
                 catch (Exception ex)
