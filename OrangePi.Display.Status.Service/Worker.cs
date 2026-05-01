@@ -97,7 +97,6 @@ namespace OrangePi.Display.Status.Service
                         if (!this.Switch && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
                             await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
 
-
                         this.Switch = true;
                     }
 
@@ -109,6 +108,9 @@ namespace OrangePi.Display.Status.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
+
             var switchMonitor = Task.Run(async () => await MonitorSwitch(stoppingToken));
             var pause = _serviceConfiguration.IntervalTimeSpan;
 
