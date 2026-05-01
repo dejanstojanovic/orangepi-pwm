@@ -35,7 +35,7 @@ namespace OrangePi.Display.Status.Service.InfoServices
             double fsUsage = 0;
             try
             {
-                fsUsage = await _processRunner.RunAsync<double>("/bin/bash", $"-c \"df -H {_driveMount} --output=pcent | sed -e /Use%/d | grep -oP '(\\d+(\\.\\d+)?(?=%))'\"");
+                fsUsage = await _processRunner.WaitForOutputAsync<double>("/bin/bash", $"-c \"df -H {_driveMount} --output=pcent | sed -e /Use%/d | grep -oP '(\\d+(\\.\\d+)?(?=%))'\"");
                 fsUsage = Math.Round(fsUsage, 2);
             }
             catch (Exception ex)

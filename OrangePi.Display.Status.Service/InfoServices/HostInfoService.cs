@@ -22,14 +22,14 @@ namespace OrangePi.Display.Status.Service.InfoServices
 
         public async Task<string> GetHostName()
         {
-            var output = await _processRunner.RunAsync("/bin/bash", $"-c \"hostname\"");
+            var output = await _processRunner.WaitForOutputAsync("/bin/bash", $"-c \"hostname\"");
             return output;
         }
 
         public async Task<string> GetIpAddress()
         {
             var command = $"ip -f inet addr show {_networkAdapter} | awk '/inet/ {{print $2}}' | cut -d/ -f1";
-            var output = await _processRunner.RunAsync("/bin/bash", $"-c \"{command}\"");
+            var output = await _processRunner.WaitForOutputAsync("/bin/bash", $"-c \"{command}\"");
             return output;
         }
     }

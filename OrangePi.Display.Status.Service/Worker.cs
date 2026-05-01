@@ -127,8 +127,8 @@ namespace OrangePi.Display.Status.Service
                             continue;
                         }
 
-                        if(!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
-                            await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Startup.Filename);
+                        //if(!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                        //    await _processRunner.RunAsync(command: "mplayer", workingFolder: _currentFolder, "-volume", _volume.ToString(), _soundsConfiguration.Startup.Filename);
 
                         ssd1306.EnableDisplay(true);
 
