@@ -87,5 +87,11 @@ namespace OrangePi.Common.Extensions
 
             return services;
         }
+
+        public static IServiceCollection AddI2CDisplayLock(this IServiceCollection services)
+        {
+            services.AddTransient<IResourceLock, I2CDisplayLock>();
+            return services;
+        }
     }
 }
