@@ -1,8 +1,8 @@
 using Iot.Device.Graphics.SkiaSharpAdapter;
 using Microsoft.Extensions.Options;
 using OrangePi.Common.Services;
-using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
+using OrangePi.Display.Status.Service.Services.Info;
 using System.Device.Gpio;
 using System.Device.I2c;
 using System.Reflection;

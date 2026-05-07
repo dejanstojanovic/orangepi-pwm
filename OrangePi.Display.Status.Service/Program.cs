@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
-using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
+using OrangePi.Display.Status.Service.Services.Info;
 
 
 IHost host = Host.CreateDefaultBuilder(args)

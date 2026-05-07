@@ -1,7 +1,7 @@
 ﻿using Iot.Device.Graphics;
 using Iot.Device.Graphics.SkiaSharpAdapter;
-using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
+using OrangePi.Display.Status.Service.Services.Info;
 using SkiaSharp;
 using System.Device.I2c;
 using System.Drawing;

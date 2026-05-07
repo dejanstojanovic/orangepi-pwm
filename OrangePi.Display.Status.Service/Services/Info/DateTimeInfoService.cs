@@ -1,7 +1,7 @@
 ﻿using Iot.Device.Graphics;
 using OrangePi.Display.Status.Service.Extensions;
 
-namespace OrangePi.Display.Status.Service.InfoServices
+namespace OrangePi.Display.Status.Service.Services.Info
 {
     public class DateTimeInfoService : IDateTimeInfoService
     {
