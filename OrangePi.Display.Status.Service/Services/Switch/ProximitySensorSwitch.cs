@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OrangePi.Display.Status.Service.Services.Switch
+﻿namespace OrangePi.Display.Status.Service.Services.Switch
 {
     public class ProximitySensorSwitch : ISwitch
     {
-        private bool _isOn = false;
+        private bool _isOn = true;
+
         public bool IsOn
         {
             get
@@ -17,7 +12,9 @@ namespace OrangePi.Display.Status.Service.Services.Switch
             }
             private set
             {
+
                 _isOn = value;
+
             }
         }
     }

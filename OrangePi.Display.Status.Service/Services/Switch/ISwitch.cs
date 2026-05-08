@@ -3,5 +3,6 @@
     internal interface ISwitch
     {
         bool IsOn { get; }
+        Task StartMonitoringAsync(CancellationToken cancellationToken);
     }
 }

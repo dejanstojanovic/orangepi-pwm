@@ -59,16 +59,10 @@ namespace OrangePi.Display.Status.Service
             IOptions<SoundConfiguration> soundConfig,
             IEnumerable<IInfoService> infoServices,
             IProcessRunner processRunner
-            //IHostInfoService hostInfoService,
-            //IDateTimeInfoService dateTimeInfoService
             )
         {
             _logger = logger;
             _displayInfoServices = infoServices.Select(s => s as IDisplayInfoService).ToList();
-
-            //_displayInfoServices = _displayInfoServices.Prepend(hostInfoService);
-            //_displayInfoServices = _displayInfoServices.Prepend(dateTimeInfoService);
-
             _serviceConfiguration = serviceConfiguration.Value;
             _switchConfig = switchConfig.Value;
             _soundConfiguration = soundConfig.Value;
