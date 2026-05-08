@@ -37,14 +37,20 @@ namespace OrangePi.Display.Status.Service.Extensions
 
         public static IServiceCollection AddInfraredMotionSensorSwitch(this IServiceCollection services, IConfiguration configuration)
         {
+            if (services.Any(s => s.ServiceType == typeof(ISwitch)))
+                throw new InvalidOperationException($"An {nameof(ISwitch)} is already registered. Only one switch implementation can be registered.");
+
             services.Configure<InfraredMotionSensorSwitchConfig>(configuration.GetSection($"SwitchConfig:{nameof(InfraredMotionSensorSwitchConfig)}"));
-            services.TryAddSingleton<ISwitch, InfraredMotionSensorSwitch>();
+            services.AddSingleton<ISwitch, InfraredMotionSensorSwitch>();
             return services;
         }
         public static IServiceCollection AddProximitySensorSwitch(this IServiceCollection services, IConfiguration configuration)
         {
+            if (services.Any(s => s.ServiceType == typeof(ISwitch)))
+                throw new InvalidOperationException($"An {nameof(ISwitch)} is already registered. Only one switch implementation can be registered.");
+
             services.Configure<ProximitySensorSwitchConfig>(configuration.GetSection($"SwitchConfig:{nameof(ProximitySensorSwitchConfig)}"));
-            services.TryAddSingleton<ISwitch, ProximitySensorSwitch>();
+            services.AddSingleton<ISwitch, ProximitySensorSwitch>();
             return services;
         }
     }
