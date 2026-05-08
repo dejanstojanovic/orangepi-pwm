@@ -8,13 +8,12 @@ namespace OrangePi.Display.Status.Service.Services.Switch
         readonly InfraredMotionSensorSwitchConfig _config;
         private bool _isOn = true;
         readonly object _lock = new Object();
+        public event EventHandler<bool>? Changed;
 
         public InfraredMotionSensorSwitch(IOptions<InfraredMotionSensorSwitchConfig> options)
         {
             _config = options.Value;
         }
-
-        public event EventHandler<bool>? Changed;
 
         public bool IsOn
         {

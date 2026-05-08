@@ -1,54 +1,44 @@
 // https://learn.microsoft.com/en-us/dotnet/iot/tutorials/lcd-display
-
-using Microsoft.Extensions.DependencyInjection;
 using OrangePi.Common.Extensions;
-using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service;
+using OrangePi.Display.Status.Service.Extensions;
 using OrangePi.Display.Status.Service.Models;
-using OrangePi.Display.Status.Service.Services.Info;
 
-
-IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration((hostContext, config) =>
+internal class Program
+{
+    private static void Main(string[] args)
     {
-        config
-            .SetBasePath(Environment.CurrentDirectory)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+        IHost host = Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration((hostContext, config) =>
+            {
+                config
+                    .SetBasePath(Environment.CurrentDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
-        config.AddEnvironmentVariables();
-    })
-    .ConfigureServices((hostContext, services) =>
-    {
-        services.AddOptions();
-        services.AddLogging();
-        services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
-        services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
-        services.Configure<SoundConfiguration>(hostContext.Configuration.GetSection(nameof(SoundConfiguration)));
-        services.AddHostedService<Worker>();
-        services.AddSingleton<IProcessRunner, ProcessRunner>();
+                config.AddEnvironmentVariables();
+            })
+            .ConfigureServices((hostContext, services) =>
+            {
+                services.AddOptions();
+                services.AddLogging();
+                services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
+                services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
+                services.Configure<SoundConfiguration>(hostContext.Configuration.GetSection(nameof(SoundConfiguration)));
+                services.AddHostedService<Worker>();
 
-        services.AddCpuTemperatureReader();
-        services.AddSsdTemperatureReader("nvme0");
+                services.AddProcessRunner();
 
-        services.AddTransient<IInfoService, CpuInfoService>();
-        services.AddTransient<IInfoService, RamInfoService>();
-        services.AddTransient<IInfoService>(x => new SsdInfoService(
-           processRunner: x.GetRequiredService<IProcessRunner>(),
-           temperatureReaders: x.GetRequiredService<IEnumerable<ITemperatureReader>>(),
-           driveMount: "/dev/nvme0n1p2",
-           logger: x.GetRequiredService<ILogger<SsdInfoService>>()));
+                services.AddCpuInfo();
+                services.AddRamInfo();
+                services.AddSsdInfo();
+            })
+            .ConfigureLogging(logging =>
+            {
+                logging.ClearProviders();
+                logging.AddConsole();
+            })
+            .Build();
 
-        //services.AddTransient<IHostInfoService>(x => new HostInfoService(
-        //   processRunner: x.GetRequiredService<IProcessRunner>(),
-        //   networkAdapter: "end1"));
-        //services.AddTransient<IDateTimeInfoService, DateTimeInfoService>();
-
-    })
-    .ConfigureLogging(logging =>
-    {
-        logging.ClearProviders();
-        logging.AddConsole();
-    })
-    .Build();
-
-host.Run();
+        host.Run();
+    }
+}

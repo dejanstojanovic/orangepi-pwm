@@ -5,6 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Services\GlancesClient.cs" />
+    <Compile Remove="Services\IGlancesClient.cs" />
+    <Compile Remove="Services\IPiHoleService.cs" />
+    <Compile Remove="Services\PiHoleService.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Flurl" Version="4.0.0" />
     <PackageReference Include="Iot.Device.Bindings" Version="3.1.0" />

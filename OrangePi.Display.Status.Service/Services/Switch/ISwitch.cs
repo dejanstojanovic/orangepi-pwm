@@ -2,7 +2,7 @@
 {
     internal interface ISwitch
     {
-        event EventHandler<bool> IsOnChanged;
+        event EventHandler<bool> Changed;
         bool IsOn { get; }
         Task StartMonitoringAsync(CancellationToken cancellationToken);
     }
