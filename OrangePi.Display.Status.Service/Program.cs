@@ -31,6 +31,9 @@ internal class Program
                 services.AddCpuInfo();
                 services.AddRamInfo();
                 services.AddSsdInfo();
+
+                services.AddInfraredMotionSensorSwitch(hostContext.Configuration);
+
             })
             .ConfigureLogging(logging =>
             {

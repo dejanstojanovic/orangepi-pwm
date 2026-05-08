@@ -3,6 +3,7 @@ using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.Models.Config;
 using OrangePi.Display.Status.Service.Services.Info;
+using OrangePi.Display.Status.Service.Services.Switch;
 
 namespace OrangePi.Display.Status.Service.Extensions
 {
@@ -34,14 +35,17 @@ namespace OrangePi.Display.Status.Service.Extensions
             return services;
         }
 
-        public static IServiceCollection InfraredMotionSensorSwitch(this IServiceCollection services)
+        public static IServiceCollection AddInfraredMotionSensorSwitch(this IServiceCollection services, IConfiguration configuration)
         {
-
+            services.Configure<InfraredMotionSensorSwitchConfig>(configuration.GetSection($"SwitchConfig:{nameof(InfraredMotionSensorSwitchConfig)}"));
+            services.TryAddSingleton<ISwitch, InfraredMotionSensorSwitch>();
+            return services;
         }
-
-        public static IServiceCollection InfraredMotionSensorSwitch(this IServiceCollection services, InfraredMotionSensorSwitchConfig config)
+        public static IServiceCollection AddProximitySensorSwitch(this IServiceCollection services, IConfiguration configuration)
         {
-
+            services.Configure<ProximitySensorSwitchConfig>(configuration.GetSection($"SwitchConfig:{nameof(ProximitySensorSwitchConfig)}"));
+            services.TryAddSingleton<ISwitch, ProximitySensorSwitch>();
+            return services;
         }
     }
 }
