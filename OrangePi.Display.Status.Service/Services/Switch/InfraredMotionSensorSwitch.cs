@@ -14,6 +14,8 @@ namespace OrangePi.Display.Status.Service.Services.Switch
             _config = options.Value;
         }
 
+        public event EventHandler<bool>? Changed;
+
         public bool IsOn
         {
             get
@@ -25,10 +27,14 @@ namespace OrangePi.Display.Status.Service.Services.Switch
             }
             private set
             {
+                bool changed;
                 lock (_lock)
                 {
+                    changed = _isOn != value;
                     _isOn = value;
                 }
+                if (changed)
+                    Changed?.Invoke(this, value);
             }
         }
 
@@ -43,6 +49,10 @@ namespace OrangePi.Display.Status.Service.Services.Switch
                     if (value == PinValue.High)
                     {
                         this.IsOn = true;
+                    }
+                    else
+                    {
+                        this.IsOn=false;
                     }
                     await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
                 }
