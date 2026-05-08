@@ -83,17 +83,17 @@ namespace OrangePi.Common.Services
             return (T)System.Convert.ChangeType(result, typeof(T));
         }
 
-        public async Task RunAsync(string command, params string[] args)
+        public Process Run(string command, params string[] args)
         {
-            await RunAsync(command, null, args);
+            return Run(command, null, args);
         }
 
-        public async Task RunAsync(string command, string arguments)
+        public Process Run(string command, string arguments)
         {
-            await RunAsync(command, null, arguments);
+            return Run(command, null, arguments);
         }
 
-        public async Task RunAsync(string command, string workingFolder, params string[] args)
+        public Process Run(string command, string workingFolder, params string[] args)
         {
             using (Process process = new Process())
             {
@@ -109,10 +109,11 @@ namespace OrangePi.Common.Services
                     process.StartInfo.ArgumentList.Add(arg);
                 }
                 process.Start();
+                return process;
             }
         }
 
-        public async Task RunAsync(string command, string workingFolder, string arguments)
+        public Process Run(string command, string workingFolder, string arguments)
         {
             using (Process process = new Process())
             {
@@ -125,6 +126,7 @@ namespace OrangePi.Common.Services
                 process.StartInfo.Arguments = arguments;
 
                 process.Start();
+                return process;
             }
         }
     }

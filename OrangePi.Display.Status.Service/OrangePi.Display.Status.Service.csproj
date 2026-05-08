@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\SwitchConfig.cs" />
     <Compile Remove="Services\Info\PiHoleInfoService.cs" />
   </ItemGroup>
 

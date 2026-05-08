@@ -22,7 +22,7 @@ internal class Program
                 services.AddOptions();
                 services.AddLogging();
                 services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
-                services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
+                //services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
                 services.Configure<SoundConfiguration>(hostContext.Configuration.GetSection(nameof(SoundConfiguration)));
                 services.AddHostedService<Worker>();
 
