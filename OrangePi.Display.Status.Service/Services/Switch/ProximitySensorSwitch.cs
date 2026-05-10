@@ -46,7 +46,7 @@ namespace OrangePi.Display.Status.Service.Services.Switch
         {
             return Task.Run(async () =>
             {
-                var _i2cSettings = new I2cConnectionSettings(1, Vl53L1X.DefaultI2cAddress);
+                var _i2cSettings = new I2cConnectionSettings(_config.BusId, Vl53L1X.DefaultI2cAddress);
 
                 using (var _i2cDevice = I2cDevice.Create(_i2cSettings))
                 {

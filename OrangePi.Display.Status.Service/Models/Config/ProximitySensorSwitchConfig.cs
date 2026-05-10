@@ -2,7 +2,7 @@
 {
     public class ProximitySensorSwitchConfig
     {
-        public int GPIO { get; set; }
+        public int BusId { get; set; }
         public int Distance { get; set; }
     }
 }
