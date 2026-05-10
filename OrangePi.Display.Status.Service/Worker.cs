@@ -4,10 +4,8 @@ using OrangePi.Common.Services;
 using OrangePi.Display.Status.Service.Models;
 using OrangePi.Display.Status.Service.Services.Info;
 using OrangePi.Display.Status.Service.Services.Switch;
-using System.Device.Gpio;
 using System.Device.I2c;
 using System.Reflection;
-using UnitsNet;
 
 namespace OrangePi.Display.Status.Service
 {
@@ -23,7 +21,6 @@ namespace OrangePi.Display.Status.Service
         private readonly ServiceConfiguration _serviceConfiguration;
         private readonly SoundConfiguration _soundConfiguration;
         private readonly IProcessRunner _processRunner;
-        readonly System.Timers.Timer _timer;
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
         readonly string _currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         readonly ISwitch _switch;
@@ -41,10 +38,7 @@ namespace OrangePi.Display.Status.Service
             _serviceConfiguration = serviceConfiguration.Value;
             _soundConfiguration = soundConfig.Value;
             _processRunner = processRunner;
-            //_timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
-            //_timer.Elapsed += timer_Elapsed;
             SkiaSharpAdapter.Register();
-            _timer.Start();
             _switch = @switch;
             _switch.Changed += _switch_Changed;
         }
@@ -54,11 +48,6 @@ namespace OrangePi.Display.Status.Service
             if (!e && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
                 _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
         }
-
-        //private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
-        //{
-        //    Switch = false;
-        //}
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

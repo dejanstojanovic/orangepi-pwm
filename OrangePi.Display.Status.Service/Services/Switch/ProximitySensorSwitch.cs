@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Iot.Device.Vl53L1X;
+using Microsoft.Extensions.Options;
 using OrangePi.Display.Status.Service.Models.Config;
+using System.Device.I2c;
+using UnitsNet;
 
 namespace OrangePi.Display.Status.Service.Services.Switch
 {
@@ -9,10 +12,12 @@ namespace OrangePi.Display.Status.Service.Services.Switch
         public event EventHandler<bool>? Changed;
         readonly object _lock = new Object();
         readonly ProximitySensorSwitchConfig _config;
-
+        private readonly Length _triggerDistance;
         public ProximitySensorSwitch(IOptions<ProximitySensorSwitchConfig> options)
         {
             _config = options.Value;
+            _triggerDistance = Length.FromMillimeters(_config.Distance);
+
         }
 
         public bool IsOn
@@ -37,9 +42,24 @@ namespace OrangePi.Display.Status.Service.Services.Switch
             }
         }
 
-        public async Task StartMonitoringAsync(CancellationToken cancellationToken)
+        public Task StartMonitoringAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            return Task.Run(async () =>
+            {
+                var _i2cSettings = new I2cConnectionSettings(_config.BusId, Vl53L1X.DefaultI2cAddress);
+
+                using (var _i2cDevice = I2cDevice.Create(_i2cSettings))
+                {
+                    using (var _distanceSensor = new Vl53L1X(_i2cDevice))
+                    {
+                        while (!stoppingToken.IsCancellationRequested)
+                        {
+                            IsOn = _distanceSensor.GetDistance() <= _triggerDistance;
+                            await Task.Delay(TimeSpan.FromMilliseconds(500)).WaitAsync(stoppingToken);
+                        }
+                    }
+                }
+            });
         }
     }
 }

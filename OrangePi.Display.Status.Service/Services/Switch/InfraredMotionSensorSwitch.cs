@@ -55,7 +55,7 @@ namespace OrangePi.Display.Status.Service.Services.Switch
                          {
                              this.IsOn = false;
                          }
-                         await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
+                         await Task.Delay(TimeSpan.FromMilliseconds(500)).WaitAsync(stoppingToken);
                      }
                  }
              });
