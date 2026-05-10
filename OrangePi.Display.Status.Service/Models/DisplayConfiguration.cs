@@ -2,9 +2,9 @@
 
 namespace OrangePi.Display.Status.Service.Models
 {
-    public class ServiceConfiguration
+    public class DisplayConfiguration
     {
-        public ServiceConfiguration()
+        public DisplayConfiguration()
         {
             
         }

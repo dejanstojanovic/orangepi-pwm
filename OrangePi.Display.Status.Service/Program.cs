@@ -20,7 +20,7 @@ internal class Program
             {
                 services.AddOptions();
                 services.AddLogging();
-                services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
+                services.Configure<DisplayConfiguration>(hostContext.Configuration.GetSection(nameof(DisplayConfiguration)));
                 services.Configure<SoundConfiguration>(hostContext.Configuration.GetSection(nameof(SoundConfiguration)));
                 services.AddHostedService<Worker>();
 

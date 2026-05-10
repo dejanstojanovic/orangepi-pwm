@@ -18,7 +18,7 @@ namespace OrangePi.Display.Status.Service
         readonly int fontSize = 12;
 
         private readonly ILogger<Worker> _logger;
-        private readonly ServiceConfiguration _serviceConfiguration;
+        private readonly DisplayConfiguration _serviceConfiguration;
         private readonly SoundConfiguration _soundConfiguration;
         private readonly IProcessRunner _processRunner;
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
@@ -28,24 +28,24 @@ namespace OrangePi.Display.Status.Service
 
 
         readonly object _lock = new object();
-        bool isPlaying = false;
+        bool _isPlaying = false;
         public bool IsPlaying
         {
             get
             {
-                return isPlaying;
+                return _isPlaying;
             }
             set
             {
                 lock (_lock)
                 {
-                    isPlaying = value;
+                    _isPlaying = value;
                 }
             }
         }
         public Worker(
             ILogger<Worker> logger,
-            IOptions<ServiceConfiguration> serviceConfiguration,
+            IOptions<DisplayConfiguration> serviceConfiguration,
             IOptions<SoundConfiguration> soundConfig,
             IEnumerable<IInfoService> infoServices,
             IProcessRunner processRunner,
@@ -61,8 +61,10 @@ namespace OrangePi.Display.Status.Service
             _switch = @switch;
             _switch.Changed += _switch_Changed;
 
+            IsPlaying = true;
             _playTimer = new System.Timers.Timer(_serviceConfiguration.IntervalTimeSpan)
             {
+                Enabled = true,
                 AutoReset = false
             };
             _playTimer.Elapsed += _playTimer_Elapsed;
@@ -72,7 +74,7 @@ namespace OrangePi.Display.Status.Service
         {
             if (!_switch.IsOn)
             {
-                isPlaying = false;
+                IsPlaying = false;
                 _playTimer.Enabled = false;
             }
         }
@@ -83,7 +85,7 @@ namespace OrangePi.Display.Status.Service
             {
                 if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
                     _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
-
+                IsPlaying = true;
                 _playTimer.Start();
             }
             else if (isOn && IsPlaying)
@@ -116,8 +118,8 @@ namespace OrangePi.Display.Status.Service
                     {
                         if (!IsPlaying)
                         {
-                            await Task.Delay(TimeSpan.FromMilliseconds(100));
                             ssd1306.EnableDisplay(false);
+                            await Task.Delay(TimeSpan.FromMilliseconds(100));
                             continue;
                         }
 
@@ -134,6 +136,7 @@ namespace OrangePi.Display.Status.Service
                             }
                             await Task.Delay(pause);
                         }
+
                     }
 
                     ssd1306.ClearScreen();
