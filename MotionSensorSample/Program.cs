@@ -1,17 +1,16 @@
-﻿using System.Device.Gpio;
-using System.Device.Pwm.Drivers;
+﻿using Iot.Device.Vl53L1X;
+using System.Device.I2c;
 
-using var controller = new GpioController();
-var pin = controller.OpenPin(92, PinMode.Input);
-while (true)
+var _i2cSettings = new I2cConnectionSettings(3, Vl53L1X.DefaultI2cAddress);
+using (var _i2cDevice = I2cDevice.Create(_i2cSettings))
 {
-    var value = pin.Read();
-    
-    if (value == PinValue.High)
+    using (var _distanceSensor = new Vl53L1X(_i2cDevice))
     {
-        Console.WriteLine("DETECTED!");
-
+        while (true)
+        {
+            var distance = _distanceSensor.GetDistance();
+            Console.WriteLine($"Distance: {distance.Millimeters}mm");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+        }
     }
-
-    await Task.Delay(TimeSpan.FromMilliseconds(200));
 }
