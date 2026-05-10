@@ -1,4 +1,3 @@
-// https://learn.microsoft.com/en-us/dotnet/iot/tutorials/lcd-display
 using OrangePi.Common.Extensions;
 using OrangePi.Display.Status.Service;
 using OrangePi.Display.Status.Service.Extensions;
@@ -22,7 +21,6 @@ internal class Program
                 services.AddOptions();
                 services.AddLogging();
                 services.Configure<ServiceConfiguration>(hostContext.Configuration.GetSection(nameof(ServiceConfiguration)));
-                //services.Configure<SwitchConfig>(hostContext.Configuration.GetSection(nameof(SwitchConfig)));
                 services.Configure<SoundConfiguration>(hostContext.Configuration.GetSection(nameof(SoundConfiguration)));
                 services.AddHostedService<Worker>();
 
