@@ -52,20 +52,11 @@ namespace OrangePi.Display.Status.Service.Services.Switch
                 {
                     using (var _distanceSensor = new Vl53L1X(_i2cDevice))
                     {
-                        _distanceSensor.StartRanging();
                         while (!stoppingToken.IsCancellationRequested)
                         {
-                            if (_distanceSensor.GetDistance() <= _triggerDistance)
-                            {
-                                IsOn = true;
-                            }
-                            else
-                            {
-                                IsOn = false;
-                            }
-                            await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
+                            IsOn = _distanceSensor.GetDistance() <= _triggerDistance;
+                            await Task.Delay(TimeSpan.FromMilliseconds(500)).WaitAsync(stoppingToken);
                         }
-                        _distanceSensor.StopRanging();
                     }
                 }
             });
