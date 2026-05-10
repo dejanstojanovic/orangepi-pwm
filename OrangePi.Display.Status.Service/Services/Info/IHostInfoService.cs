@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrangePi.Display.Status.Service.InfoServices
+namespace OrangePi.Display.Status.Service.Services.Info
 {
     public interface IHostInfoService : IDisplayInfoService
     {

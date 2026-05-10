@@ -1,4 +1,6 @@
-﻿namespace OrangePi.Common.Services
+﻿using System.Diagnostics;
+
+namespace OrangePi.Common.Services
 {
     public interface IProcessRunner
     {
@@ -11,9 +13,9 @@
         Task<T> WaitForOutputAsync<T>(string command, string arguments);
         Task<T> WaitForOutputAsync<T>(string command, string workingFolder, string arguments);
 
-        Task RunAsync(string command, params string[] args);
-        Task RunAsync(string command, string workingFolder, params string[] args);
-        Task RunAsync(string command, string arguments);
-        Task RunAsync(string command, string workingFolder, string arguments);
+        Process Run(string command, params string[] args);
+        Process Run(string command, string workingFolder, params string[] args);
+        Process Run(string command, string arguments);
+        Process Run(string command, string workingFolder, string arguments);
     }
 }

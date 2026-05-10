@@ -1,8 +1,9 @@
 using Iot.Device.Graphics.SkiaSharpAdapter;
 using Microsoft.Extensions.Options;
 using OrangePi.Common.Services;
-using OrangePi.Display.Status.Service.InfoServices;
 using OrangePi.Display.Status.Service.Models;
+using OrangePi.Display.Status.Service.Services.Info;
+using OrangePi.Display.Status.Service.Services.Switch;
 using System.Device.Gpio;
 using System.Device.I2c;
 using System.Reflection;
@@ -12,32 +13,6 @@ namespace OrangePi.Display.Status.Service
 {
     public class Worker : BackgroundService
     {
-        #region Switch mechanism
-        bool _switch = true;
-        readonly object _lock = new Object();
-        public bool Switch
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _switch;
-                }
-            }
-            set
-            {
-                lock (_lock)
-                {
-                    _switch = value;
-                    if (value)
-                    {
-                        _timer.Stop();
-                        _timer.Start();
-                    }
-                }
-            }
-        }
-        #endregion
 
         readonly int screenWidth = 128;
         readonly int screenHeight = 64;
@@ -46,72 +21,51 @@ namespace OrangePi.Display.Status.Service
 
         private readonly ILogger<Worker> _logger;
         private readonly ServiceConfiguration _serviceConfiguration;
-        private readonly SwitchConfig _switchConfig;
         private readonly SoundConfiguration _soundConfiguration;
         private readonly IProcessRunner _processRunner;
         readonly System.Timers.Timer _timer;
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
         readonly string _currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        readonly ISwitch _switch;
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
-            IOptions<SwitchConfig> switchConfig,
             IOptions<SoundConfiguration> soundConfig,
             IEnumerable<IInfoService> infoServices,
-            IProcessRunner processRunner
-            //IHostInfoService hostInfoService,
-            //IDateTimeInfoService dateTimeInfoService
+            IProcessRunner processRunner,
+            ISwitch @switch
             )
         {
             _logger = logger;
             _displayInfoServices = infoServices.Select(s => s as IDisplayInfoService).ToList();
-
-            //_displayInfoServices = _displayInfoServices.Prepend(hostInfoService);
-            //_displayInfoServices = _displayInfoServices.Prepend(dateTimeInfoService);
-
             _serviceConfiguration = serviceConfiguration.Value;
-            _switchConfig = switchConfig.Value;
             _soundConfiguration = soundConfig.Value;
             _processRunner = processRunner;
-            _timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
-            _timer.Elapsed += timer_Elapsed;
+            //_timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
+            //_timer.Elapsed += timer_Elapsed;
             SkiaSharpAdapter.Register();
             _timer.Start();
+            _switch = @switch;
+            _switch.Changed += _switch_Changed;
         }
 
-        private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        private void _switch_Changed(object? sender, bool e)
         {
-            Switch = false;
+            if (!e && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
         }
 
-        async Task MonitorSwitch(CancellationToken stoppingToken)
-        {
-            using (var controller = new GpioController())
-            {
-                var pin = controller.OpenPin(_switchConfig.GPIO, PinMode.Input);
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    var value = pin.Read();
-                    if (value == PinValue.High)
-                    {
-                        if (!this.Switch && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
-                            await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
-
-                        this.Switch = true;
-                    }
-
-                    await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
-                }
-            }
-        }
-
+        //private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        //{
+        //    Switch = false;
+        //}
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
-                await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
+                _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
 
-            var switchMonitor = Task.Run(async () => await MonitorSwitch(stoppingToken));
+            var switchMonitor = _switch.StartMonitoringAsync(stoppingToken);
             var pause = _serviceConfiguration.IntervalTimeSpan;
 
             //https://pinout.xyz/pinout/i2c
@@ -127,7 +81,7 @@ namespace OrangePi.Display.Status.Service
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
-                        if (!Switch)
+                        if (!_switch.IsOn)
                         {
                             await Task.Delay(TimeSpan.FromMilliseconds(100));
                             ssd1306.EnableDisplay(false);
