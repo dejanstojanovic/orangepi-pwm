@@ -37,25 +37,28 @@ namespace OrangePi.Display.Status.Service.Services.Switch
             }
         }
 
-        public async Task StartMonitoringAsync(CancellationToken stoppingToken)
+        public Task StartMonitoringAsync(CancellationToken stoppingToken)
         {
-            using (var controller = new GpioController())
-            {
-                var pin = controller.OpenPin(_config.GPIO, PinMode.Input);
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    var value = pin.Read();
-                    if (value == PinValue.High)
-                    {
-                        this.IsOn = true;
-                    }
-                    else
-                    {
-                        this.IsOn=false;
-                    }
-                    await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
-                }
-            }
+            return Task.Run(async () =>
+             {
+                 using (var controller = new GpioController())
+                 {
+                     var pin = controller.OpenPin(_config.GPIO, PinMode.Input);
+                     while (!stoppingToken.IsCancellationRequested)
+                     {
+                         var value = pin.Read();
+                         if (value == PinValue.High)
+                         {
+                             this.IsOn = true;
+                         }
+                         else
+                         {
+                             this.IsOn = false;
+                         }
+                         await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
+                     }
+                 }
+             });
         }
 
     }

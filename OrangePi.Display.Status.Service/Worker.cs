@@ -21,7 +21,6 @@ namespace OrangePi.Display.Status.Service
 
         private readonly ILogger<Worker> _logger;
         private readonly ServiceConfiguration _serviceConfiguration;
-        private readonly SwitchConfig _switchConfig;
         private readonly SoundConfiguration _soundConfiguration;
         private readonly IProcessRunner _processRunner;
         readonly System.Timers.Timer _timer;
@@ -31,7 +30,6 @@ namespace OrangePi.Display.Status.Service
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
-            IOptions<SwitchConfig> switchConfig,
             IOptions<SoundConfiguration> soundConfig,
             IEnumerable<IInfoService> infoServices,
             IProcessRunner processRunner,
@@ -41,7 +39,6 @@ namespace OrangePi.Display.Status.Service
             _logger = logger;
             _displayInfoServices = infoServices.Select(s => s as IDisplayInfoService).ToList();
             _serviceConfiguration = serviceConfiguration.Value;
-            _switchConfig = switchConfig.Value;
             _soundConfiguration = soundConfig.Value;
             _processRunner = processRunner;
             //_timer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan);
@@ -63,34 +60,12 @@ namespace OrangePi.Display.Status.Service
         //    Switch = false;
         //}
 
-        //async Task MonitorSwitch(CancellationToken stoppingToken)
-        //{
-        //    using (var controller = new GpioController())
-        //    {
-        //        var pin = controller.OpenPin(_switchConfig.GPIO, PinMode.Input);
-        //        while (!stoppingToken.IsCancellationRequested)
-        //        {
-        //            var value = pin.Read();
-        //            if (value == PinValue.High)
-        //            {
-        //                if (!this.Switch && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
-        //                    await _processRunner.RunAsync(command: "play", _soundConfiguration.ActivationSound);
-
-        //                this.Switch = true;
-        //            }
-
-        //            await Task.Delay(TimeSpan.FromMilliseconds(100)).WaitAsync(stoppingToken);
-        //        }
-        //    }
-        //}
-
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
                 _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
 
-            var switchMonitor = Task.Run(async () => await _switch.StartMonitoringAsync(stoppingToken));
+            var switchMonitor = _switch.StartMonitoringAsync(stoppingToken);
             var pause = _serviceConfiguration.IntervalTimeSpan;
 
             //https://pinout.xyz/pinout/i2c
