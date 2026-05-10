@@ -24,6 +24,25 @@ namespace OrangePi.Display.Status.Service
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
         readonly string _currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         readonly ISwitch _switch;
+        readonly System.Timers.Timer _playTimer;
+
+
+        readonly object _lock = new object();
+        bool isPlaying = false;
+        public bool IsPlaying
+        {
+            get
+            {
+                return isPlaying;
+            }
+            set
+            {
+                lock (_lock)
+                {
+                    isPlaying = value;
+                }
+            }
+        }
         public Worker(
             ILogger<Worker> logger,
             IOptions<ServiceConfiguration> serviceConfiguration,
@@ -41,12 +60,37 @@ namespace OrangePi.Display.Status.Service
             SkiaSharpAdapter.Register();
             _switch = @switch;
             _switch.Changed += _switch_Changed;
+
+            _playTimer = new System.Timers.Timer(_serviceConfiguration.IntervalTimeSpan)
+            {
+                AutoReset = false
+            };
+            _playTimer.Elapsed += _playTimer_Elapsed;
         }
 
-        private void _switch_Changed(object? sender, bool e)
+        private void _playTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!e && !string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
-                _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
+            if (!_switch.IsOn)
+            {
+                isPlaying = false;
+                _playTimer.Enabled = false;
+            }
+        }
+
+        private void _switch_Changed(object? sender, bool isOn)
+        {
+            if (isOn && !IsPlaying)
+            {
+                if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
+                    _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
+
+                _playTimer.Start();
+            }
+            else if (isOn && IsPlaying)
+            {
+                _playTimer.Stop();
+                _playTimer.Start();
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,7 +114,7 @@ namespace OrangePi.Display.Status.Service
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
-                        if (!_switch.IsOn)
+                        if (!IsPlaying)
                         {
                             await Task.Delay(TimeSpan.FromMilliseconds(100));
                             ssd1306.EnableDisplay(false);
@@ -84,15 +128,14 @@ namespace OrangePi.Display.Status.Service
                             if (stoppingToken.IsCancellationRequested)
                                 break;
 
-                            await Task.Delay(pause);
-
                             using (var image = await infoService.GetInfoDisplay(screenWidth, screenHeight, fontName, fontSize))
                             {
                                 ssd1306.DrawBitmap(image);
                             }
-
+                            await Task.Delay(pause);
                         }
                     }
+
                     ssd1306.ClearScreen();
                 }
             }
