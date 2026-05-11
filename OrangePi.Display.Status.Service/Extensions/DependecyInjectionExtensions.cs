@@ -13,20 +13,20 @@ namespace OrangePi.Display.Status.Service.Extensions
         {
             services.TryAddSingleton<IProcessRunner, ProcessRunner>();
             services.AddCpuTemperatureReader();
-            services.TryAddTransient<IInfoService, CpuInfoService>();
+            services.AddTransient<IInfoService, CpuInfoService>();
             return services;
         }
 
         public static IServiceCollection AddRamInfo(this IServiceCollection services)
         {
-            services.TryAddTransient<IInfoService, RamInfoService>();
+            services.AddTransient<IInfoService, RamInfoService>();
             return services;
         }
 
         public static IServiceCollection AddSsdInfo(this IServiceCollection services)
         {
             services.AddSsdTemperatureReader("nvme0");
-            services.TryAddTransient<IInfoService>(x => new SsdInfoService(
+            services.AddTransient<IInfoService>(x => new SsdInfoService(
                processRunner: x.GetRequiredService<IProcessRunner>(),
                temperatureReaders: x.GetRequiredService<IEnumerable<ITemperatureReader>>(),
                driveMount: "/dev/nvme0n1p2",

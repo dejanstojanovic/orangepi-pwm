@@ -29,13 +29,13 @@ namespace OrangePi.Common.Extensions
 
         public static IServiceCollection AddCpuTemperatureReader(this IServiceCollection services)
         {
-            services.TryAddSingleton<ITemperatureReader, CpuTemperatureReader>();
+            services.AddSingleton<ITemperatureReader, CpuTemperatureReader>();
             return services;
         }
 
         public static IServiceCollection AddSsdTemperatureReader(this IServiceCollection services,string drive)
         {
-            services.TryAddSingleton<ITemperatureReader>(x=> new SsdTemperatureReader(x.GetRequiredService<IProcessRunner>(), drive));
+            services.AddSingleton<ITemperatureReader>(x=> new SsdTemperatureReader(x.GetRequiredService<IProcessRunner>(), drive));
             return services;
         }
 
