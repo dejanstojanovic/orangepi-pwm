@@ -1,4 +1,5 @@
 ﻿using Iot.Device.Graphics;
+using Iot.Device.Ssd1351;
 using Iot.Device.Ssd13xx;
 using OrangePi.Display.Status.Service.Models;
 using System.Device.I2c;
@@ -43,13 +44,14 @@ namespace OrangePi.Display.Status.Service.Services
         {
             if (rotationTypes.Contains(IScreen.FlipType.Horizontally))
                 FlipHorizontally();
+
             if (rotationTypes.Contains(IScreen.FlipType.Vertically))
                 FlipVertically();
         }
 
         public void FlipHorizontally()
         {
-            _ssd1306.SendCommand(new Ssd1306Command(0xc0));
+            _ssd1306.SendCommand(new Ssd1306Command(0xa0));
         }
 
         public void FlipVertically()
