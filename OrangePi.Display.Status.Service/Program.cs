@@ -22,6 +22,7 @@ internal class Program
                 services.AddLogging();
                 services.Configure<ScreenConfiguration>(hostContext.Configuration.GetSection(nameof(ScreenConfiguration)));
                 services.Configure<SoundConfiguration>(hostContext.Configuration.GetSection(nameof(SoundConfiguration)));
+                services.AddScreen();
                 services.AddHostedService<Worker>();
 
                 services.AddProcessRunner();

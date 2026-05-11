@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using OrangePi.Common.Extensions;
 using OrangePi.Common.Services;
+using OrangePi.Display.Status.Service.Models;
 using OrangePi.Display.Status.Service.Models.Config;
+using OrangePi.Display.Status.Service.Services;
 using OrangePi.Display.Status.Service.Services.Info;
 using OrangePi.Display.Status.Service.Services.Switch;
 
@@ -9,6 +12,19 @@ namespace OrangePi.Display.Status.Service.Extensions
 {
     public static class DependecyInjectionExtensions
     {
+        public static IServiceCollection AddScreen(this IServiceCollection services)
+        {
+            services.AddSingleton<IScreen>(sp =>
+            {
+                var config = sp.GetRequiredService<IOptions<ScreenConfiguration>>().Value;
+                var screen = new Screen(config.BusId, config.DeviceAddress);
+                if (config.Rotate)
+                    screen.Flip([IScreen.FlipType.Horizontally, IScreen.FlipType.Vertically]);
+                return screen;
+            });
+            return services;
+        }
+
         public static IServiceCollection AddCpuInfo(this IServiceCollection services)
         {
             services.TryAddSingleton<IProcessRunner, ProcessRunner>();
