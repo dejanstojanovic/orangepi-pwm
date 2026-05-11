@@ -1,9 +1,4 @@
 ﻿using Iot.Device.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrangePi.Display.Status.Service.Services.Info
 {

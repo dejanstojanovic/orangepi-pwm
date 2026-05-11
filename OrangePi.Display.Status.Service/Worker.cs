@@ -62,7 +62,7 @@ namespace OrangePi.Display.Status.Service
             _switch.Changed += _switch_Changed;
 
             IsPlaying = true;
-            _playTimer = new System.Timers.Timer(_serviceConfiguration.IntervalTimeSpan)
+            _playTimer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan)
             {
                 Enabled = true,
                 AutoReset = false
@@ -72,27 +72,22 @@ namespace OrangePi.Display.Status.Service
 
         private void _playTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!_switch.IsOn)
-            {
-                IsPlaying = false;
-                _playTimer.Enabled = false;
-            }
+            IsPlaying = false;
         }
 
         private void _switch_Changed(object? sender, bool isOn)
         {
-            if (isOn && !IsPlaying)
+            if (!isOn) return;
+
+            if (!IsPlaying)
             {
                 if (!string.IsNullOrWhiteSpace(_soundConfiguration.ActivationSound) && File.Exists(_soundConfiguration.ActivationSound))
                     _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
-                IsPlaying = true;
-                _playTimer.Start();
             }
-            else if (isOn && IsPlaying)
-            {
-                _playTimer.Stop();
-                _playTimer.Start();
-            }
+
+            IsPlaying = true;
+            _playTimer.Stop();
+            _playTimer.Start();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
