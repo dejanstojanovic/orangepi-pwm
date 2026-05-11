@@ -18,7 +18,7 @@ namespace OrangePi.Display.Status.Service
         readonly int fontSize = 12;
 
         private readonly ILogger<Worker> _logger;
-        private readonly DisplayConfiguration _serviceConfiguration;
+        private readonly ScreenConfiguration _screeConfiguration;
         private readonly SoundConfiguration _soundConfiguration;
         private readonly IProcessRunner _processRunner;
         readonly IEnumerable<IDisplayInfoService> _displayInfoServices;
@@ -45,7 +45,7 @@ namespace OrangePi.Display.Status.Service
         }
         public Worker(
             ILogger<Worker> logger,
-            IOptions<DisplayConfiguration> serviceConfiguration,
+            IOptions<ScreenConfiguration> serviceConfiguration,
             IOptions<SoundConfiguration> soundConfig,
             IEnumerable<IInfoService> infoServices,
             IProcessRunner processRunner,
@@ -54,7 +54,7 @@ namespace OrangePi.Display.Status.Service
         {
             _logger = logger;
             _displayInfoServices = infoServices.Select(s => s as IDisplayInfoService).ToList();
-            _serviceConfiguration = serviceConfiguration.Value;
+            _screeConfiguration = serviceConfiguration.Value;
             _soundConfiguration = soundConfig.Value;
             _processRunner = processRunner;
             SkiaSharpAdapter.Register();
@@ -62,7 +62,7 @@ namespace OrangePi.Display.Status.Service
             _switch.Changed += _switch_Changed;
 
             IsPlaying = true;
-            _playTimer = new System.Timers.Timer(_serviceConfiguration.TimeOnTimeSpan)
+            _playTimer = new System.Timers.Timer(_screeConfiguration.TimeOnTimeSpan)
             {
                 Enabled = true,
                 AutoReset = false
@@ -96,14 +96,14 @@ namespace OrangePi.Display.Status.Service
                 _processRunner.Run(command: "play", _soundConfiguration.ActivationSound);
 
             var switchMonitor = _switch.StartMonitoringAsync(stoppingToken);
-            var pause = _serviceConfiguration.IntervalTimeSpan;
+            var pause = _screeConfiguration.IntervalTimeSpan;
 
             //https://pinout.xyz/pinout/i2c
-            using (var device = I2cDevice.Create(new I2cConnectionSettings(_serviceConfiguration.BusId, _serviceConfiguration.DeviceAddress)))
+            using (var device = I2cDevice.Create(new I2cConnectionSettings(_screeConfiguration.BusId, _screeConfiguration.DeviceAddress)))
             {
                 using (var ssd1306 = new Iot.Device.Ssd13xx.Ssd1306(device, screenWidth, screenHeight))
                 {
-                    if (_serviceConfiguration.Rotate)
+                    if (_screeConfiguration.Rotate)
                     {
                         ssd1306.SendCommand(new Ssd1306Command(0xc0));//Flip vertically
                         ssd1306.SendCommand(new Ssd1306Command(0xa0));//Flip horizontally
