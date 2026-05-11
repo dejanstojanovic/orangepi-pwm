@@ -1,11 +1,14 @@
 ﻿using Iot.Device.Graphics;
-using Iot.Device.Ssd1351;
 using Iot.Device.Ssd13xx;
 using OrangePi.Display.Status.Service.Models;
 using System.Device.I2c;
 
 namespace OrangePi.Display.Status.Service.Services
 {
+    /// <summary>
+    /// To get the i2c mapping on orangepi5 run:
+    /// sudo i2cdetect -y <busId>
+    /// </summary>
     public class Screen : IScreen
     {
         public int Width => 128;
