@@ -1,3 +1,4 @@
+using Iot.Device.Graphics.SkiaSharpAdapter;
 using OrangePi.Common.Extensions;
 using OrangePi.Display.Status.Service;
 using OrangePi.Display.Status.Service.Extensions;
@@ -7,6 +8,8 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        SkiaSharpAdapter.Register();
+
         IHost host = Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((hostContext, config) =>
             {
@@ -20,8 +23,9 @@ internal class Program
             {
                 services.AddOptions();
                 services.AddLogging();
-                services.Configure<DisplayConfiguration>(hostContext.Configuration.GetSection(nameof(DisplayConfiguration)));
+                services.Configure<ScreenConfiguration>(hostContext.Configuration.GetSection(nameof(ScreenConfiguration)));
                 services.Configure<SoundConfiguration>(hostContext.Configuration.GetSection(nameof(SoundConfiguration)));
+                services.AddScreen();
                 services.AddHostedService<Worker>();
 
                 services.AddProcessRunner();

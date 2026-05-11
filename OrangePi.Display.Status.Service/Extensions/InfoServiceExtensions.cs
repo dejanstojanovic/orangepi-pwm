@@ -1,9 +1,8 @@
 ﻿using Iot.Device.Graphics;
 using Iot.Device.Graphics.SkiaSharpAdapter;
-using OrangePi.Display.Status.Service.Models;
+using OrangePi.Display.Status.Service.Services;
 using OrangePi.Display.Status.Service.Services.Info;
 using SkiaSharp;
-using System.Device.I2c;
 using System.Drawing;
 
 
@@ -202,6 +201,14 @@ namespace OrangePi.Display.Status.Service.Extensions
 
             return image;
 
+        }
+
+        public static async Task DrawInfo(this IScreen screen, IDisplayInfoService displayInfo, int fontSize = 12, string fontName = "DejaVu Sans Bold")
+        {
+            using (var image = await displayInfo.GetInfoDisplay(screen.Width, screen.Height, fontName, fontSize))
+            {
+                screen.DrawImage(image);
+            }
         }
     }
 }
